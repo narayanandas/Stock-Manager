@@ -108,7 +108,7 @@ const SalesPage: React.FC = () => {
                 const cust = customers.find(c => c.id === log.customerId);
                 return (
                   <tr key={log.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                    <td className="px-8 py-5 text-slate-500 whitespace-nowrap font-medium">
+                    <td className="px-8 py-5 text-slate-500 dark:text-slate-400 whitespace-nowrap font-medium">
                       {new Date(log.date).toLocaleDateString('en-IN', {day:'numeric', month:'short'})}
                     </td>
                     <td className="px-8 py-5 font-bold text-slate-900 dark:text-slate-100">
@@ -161,13 +161,13 @@ const SalesPage: React.FC = () => {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="md:col-span-2">
-                <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-3 ml-1">Client Selection</label>
+                <label className="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3 ml-1">Client Selection</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <User size={20} className="text-slate-400" />
                   </div>
                   <select 
-                    className="w-full px-12 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:bg-white transition-all appearance-none text-slate-700 dark:text-white font-medium"
+                    className="w-full px-12 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:bg-white transition-all appearance-none text-slate-900 dark:text-white font-medium"
                     value={formData.customerId}
                     onChange={e => setFormData({ ...formData, customerId: e.target.value })}
                   >
@@ -177,13 +177,13 @@ const SalesPage: React.FC = () => {
                 </div>
               </div>
               <div className="md:col-span-2">
-                <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-3 ml-1">SKU Identification</label>
+                <label className="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3 ml-1">SKU Identification</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <ShoppingBag size={20} className="text-slate-400" />
                   </div>
                   <select 
-                    className="w-full px-12 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:bg-white transition-all appearance-none text-slate-700 dark:text-white font-medium"
+                    className="w-full px-12 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:bg-white transition-all appearance-none text-slate-900 dark:text-white font-medium"
                     value={formData.productId}
                     onChange={e => setFormData({ ...formData, productId: e.target.value })}
                   >
@@ -193,16 +193,16 @@ const SalesPage: React.FC = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-3 ml-1">Unit Count</label>
+                <label className="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3 ml-1">Unit Count</label>
                 <input 
                   type="number"
-                  className="w-full px-6 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all font-mono font-bold text-slate-700 dark:text-white"
+                  className="w-full px-6 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all font-mono font-bold text-slate-900 dark:text-white"
                   value={formData.quantity}
                   onChange={e => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
                 />
               </div>
               <div>
-                <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-3 ml-1">Ledger State</label>
+                <label className="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3 ml-1">Ledger State</label>
                 <div className="flex bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl">
                   <button 
                     onClick={() => setFormData({...formData, paymentStatus: 'PAID'})}

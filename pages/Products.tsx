@@ -95,7 +95,7 @@ const ProductsPage: React.FC = () => {
         <input 
           type="text" 
           placeholder="Search items by name or category..." 
-          className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 pl-11 pr-4 py-4 rounded-2xl focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all shadow-sm text-slate-700 dark:text-slate-200 font-medium"
+          className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 pl-11 pr-4 py-4 rounded-2xl focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all shadow-sm text-slate-900 dark:text-white font-medium"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -142,18 +142,18 @@ const ProductsPage: React.FC = () => {
             <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-8">{editingId ? 'Edit Product' : 'Add New Product'}</h2>
             <div className="grid grid-cols-2 gap-6">
               <div className="col-span-2">
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Product Name</label>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2 ml-1">Product Name</label>
                 <input 
-                  className="w-full px-5 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all text-slate-700 dark:text-white"
+                  className="w-full px-5 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all text-slate-900 dark:text-white font-medium"
                   value={formData.name}
                   onChange={e => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g. Ultra Fast Charger"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Category</label>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2 ml-1">Category</label>
                 <select 
-                  className="w-full px-5 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all text-slate-700 dark:text-white appearance-none"
+                  className="w-full px-5 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all text-slate-900 dark:text-white appearance-none font-medium"
                   value={formData.category}
                   onChange={e => setFormData({ ...formData, category: e.target.value })}
                 >
@@ -165,28 +165,28 @@ const ProductsPage: React.FC = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Min Stock Alert</label>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2 ml-1">Min Stock Alert</label>
                 <input 
                   type="number"
-                  className="w-full px-5 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all text-slate-700 dark:text-white"
+                  className="w-full px-5 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all text-slate-900 dark:text-white font-medium"
                   value={formData.minStock}
                   onChange={e => setFormData({ ...formData, minStock: parseInt(e.target.value) || 0 })}
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Cost Price (₹)</label>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2 ml-1">Cost Price (₹)</label>
                 <input 
                   type="number"
-                  className="w-full px-5 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all text-slate-700 dark:text-white font-bold"
+                  className="w-full px-5 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all text-slate-900 dark:text-white font-bold"
                   value={formData.costPrice}
                   onChange={e => setFormData({ ...formData, costPrice: parseFloat(e.target.value) || 0 })}
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Sale Price (₹)</label>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2 ml-1">Sale Price (₹)</label>
                 <input 
                   type="number"
-                  className="w-full px-5 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all text-slate-700 dark:text-white font-bold"
+                  className="w-full px-5 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all text-slate-900 dark:text-white font-bold"
                   value={formData.unitPrice}
                   onChange={e => setFormData({ ...formData, unitPrice: parseFloat(e.target.value) || 0 })}
                 />

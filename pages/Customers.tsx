@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../db';
 import { Customer } from '../types';
-// Fix: Added 'Users' to imports from lucide-react
-import { Plus, Search, MoreVertical, Trash2, Edit2, Mail, Phone, MapPin, Users } from 'lucide-react';
+import { Plus, Search, Trash2, Edit2, Mail, Phone, MapPin, Users } from 'lucide-react';
 
 const CustomersPage: React.FC = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -61,8 +60,8 @@ const CustomersPage: React.FC = () => {
     <div className="space-y-6 animate-in slide-in-from-bottom-2 duration-300">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Customers</h1>
-          <p className="text-slate-500">Manage your business client relationships.</p>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Customers</h1>
+          <p className="text-slate-500 dark:text-slate-400">Manage your business client relationships.</p>
         </div>
         <button 
           onClick={() => handleOpenModal()}
@@ -81,7 +80,7 @@ const CustomersPage: React.FC = () => {
         <input 
           type="text" 
           placeholder="Search customers by name or phone..." 
-          className="w-full bg-white border border-slate-200 pl-10 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm"
+          className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 pl-10 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm text-slate-900 dark:text-white font-medium"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -90,9 +89,9 @@ const CustomersPage: React.FC = () => {
       {/* Customers Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filtered.map(customer => (
-          <div key={customer.id} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all group">
+          <div key={customer.id} className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md transition-all group">
             <div className="flex justify-between items-start mb-4">
-              <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center font-bold text-lg">
+              <div className="w-12 h-12 bg-blue-50 dark:bg-slate-800 text-blue-600 rounded-full flex items-center justify-center font-bold text-lg">
                 {customer.name.charAt(0)}
               </div>
               <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -100,8 +99,8 @@ const CustomersPage: React.FC = () => {
                 <button onClick={() => handleDelete(customer.id)} className="p-2 text-slate-400 hover:text-red-600"><Trash2 size={16} /></button>
               </div>
             </div>
-            <h3 className="font-bold text-slate-800 text-lg">{customer.name}</h3>
-            <div className="mt-4 space-y-2 text-sm text-slate-500">
+            <h3 className="font-bold text-slate-800 dark:text-white text-lg">{customer.name}</h3>
+            <div className="mt-4 space-y-2 text-sm text-slate-500 dark:text-slate-400">
               <div className="flex items-center space-x-2">
                 <Phone size={14} /> <span>{customer.phone}</span>
               </div>
@@ -115,9 +114,9 @@ const CustomersPage: React.FC = () => {
           </div>
         ))}
         {filtered.length === 0 && (
-          <div className="col-span-full py-20 text-center bg-white rounded-2xl border-2 border-dashed border-slate-200">
-            <Users size={48} className="mx-auto text-slate-300 mb-4" />
-            <p className="text-slate-500 font-medium">No customers found.</p>
+          <div className="col-span-full py-20 text-center bg-white dark:bg-slate-900 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800">
+            <Users size={48} className="mx-auto text-slate-300 dark:text-slate-700 mb-4" />
+            <p className="text-slate-500 dark:text-slate-500 font-medium">No customers found.</p>
           </div>
         )}
       </div>
@@ -125,40 +124,40 @@ const CustomersPage: React.FC = () => {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white w-full max-md rounded-3xl shadow-2xl p-8 transform animate-in zoom-in-95 duration-200">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">{editingId ? 'Edit Customer' : 'Add New Customer'}</h2>
+          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl p-8 transform animate-in zoom-in-95 duration-200">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">{editingId ? 'Edit Customer' : 'Add New Customer'}</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Full Name</label>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Full Name</label>
                 <input 
-                  className="w-full px-4 py-3 rounded-xl border bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all"
+                  className="w-full px-4 py-3 rounded-xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all text-slate-900 dark:text-white font-medium"
                   value={formData.name}
                   onChange={e => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g. John Doe"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Phone Number</label>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Phone Number</label>
                 <input 
-                  className="w-full px-4 py-3 rounded-xl border bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all"
+                  className="w-full px-4 py-3 rounded-xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all text-slate-900 dark:text-white font-medium"
                   value={formData.phone}
                   onChange={e => setFormData({ ...formData, phone: e.target.value })}
                   placeholder="+1 (555) 000-0000"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Email Address</label>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Email Address</label>
                 <input 
-                  className="w-full px-4 py-3 rounded-xl border bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all"
+                  className="w-full px-4 py-3 rounded-xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all text-slate-900 dark:text-white font-medium"
                   value={formData.email}
                   onChange={e => setFormData({ ...formData, email: e.target.value })}
                   placeholder="john@example.com"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Address</label>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Address</label>
                 <textarea 
-                  className="w-full px-4 py-3 rounded-xl border bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all resize-none"
+                  className="w-full px-4 py-3 rounded-xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all resize-none text-slate-900 dark:text-white font-medium"
                   rows={2}
                   value={formData.address}
                   onChange={e => setFormData({ ...formData, address: e.target.value })}
@@ -169,7 +168,7 @@ const CustomersPage: React.FC = () => {
             <div className="mt-8 flex space-x-3">
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="flex-1 py-3 font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition-colors"
+                className="flex-1 py-3 font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
               >
                 Cancel
               </button>
