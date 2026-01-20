@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { HashRouter, Routes, Route, Link, useLocation, Navigate, useNavigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
@@ -10,11 +10,10 @@ import {
   CreditCard, 
   Menu, 
   X,
-  TrendingUp,
-  LogOut,
   ShoppingBag,
   Moon,
-  Sun
+  Sun,
+  ShieldCheck
 } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import CustomersPage from './pages/Customers';
@@ -22,7 +21,6 @@ import ProductsPage from './pages/Products';
 import StockPage from './pages/Stock';
 import SalesPage from './pages/Sales';
 import PaymentsPage from './pages/Payments';
-import LoginPage from './pages/LoginPage';
 
 const NavItem = ({ to, icon: Icon, label, active }: { to: string, icon: any, label: string, active: boolean }) => (
   <Link 
@@ -40,19 +38,8 @@ const NavItem = ({ to, icon: Icon, label, active }: { to: string, icon: any, lab
 
 const App: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState<{ email: string } | null>(null);
-  const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('ss_dark') === 'true');
   const location = useLocation();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const savedUser = localStorage.getItem('ss_user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
-  }, []);
 
   useEffect(() => {
     if (darkMode) {
@@ -63,32 +50,7 @@ const App: React.FC = () => {
     localStorage.setItem('ss_dark', String(darkMode));
   }, [darkMode]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('ss_user');
-    setUser(null);
-    navigate('/login');
-  };
-
   const closeMenu = () => setIsMobileMenuOpen(false);
-
-  if (loading) return null;
-
-  if (!user && location.pathname !== '/login') {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (user && location.pathname === '/login') {
-    return <Navigate to="/" replace />;
-  }
-
-  if (location.pathname === '/login') {
-    return <LoginPage onLogin={(email) => {
-      const u = { email };
-      setUser(u);
-      localStorage.setItem('ss_user', JSON.stringify(u));
-      navigate('/');
-    }} />;
-  }
 
   return (
     <div className={`flex flex-col md:flex-row min-h-screen ${darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
@@ -137,18 +99,9 @@ const App: React.FC = () => {
             {darkMode ? <Moon size={18} /> : <Sun size={18} />}
           </button>
           
-          <div className="flex items-center justify-between px-2">
-            <div className="flex flex-col overflow-hidden">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Operator</span>
-              <span className="text-sm text-slate-700 dark:text-slate-300 truncate font-medium">{user?.email}</span>
-            </div>
-            <button 
-              onClick={handleLogout}
-              className="p-2 text-slate-400 hover:text-red-500 transition-colors"
-              title="Logout"
-            >
-              <LogOut size={18} />
-            </button>
+          <div className="flex items-center space-x-2 px-2 text-slate-400">
+            <ShieldCheck size={16} className="text-emerald-500" />
+            <span className="text-[10px] font-bold uppercase tracking-widest">Local Session Active</span>
           </div>
         </div>
       </aside>

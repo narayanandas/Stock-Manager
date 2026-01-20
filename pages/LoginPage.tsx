@@ -15,15 +15,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const [error, setError] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
 
-  const handleGoogleLogin = () => {
-    setIsVerifying(true);
-    // Simulate Google Sign-In redirect and success
-    setTimeout(() => {
-      onLogin('google.user@business.in');
-      setIsVerifying(false);
-    }, 1200);
-  };
-
   const handleInitialSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !email.includes('@')) {
@@ -75,22 +66,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="mb-8">
                 <h2 className="text-2xl font-bold text-slate-800">Account Access</h2>
-                <p className="text-slate-500 text-sm mt-1">Sign in with your verified credentials.</p>
-              </div>
-
-              <button 
-                onClick={handleGoogleLogin}
-                disabled={isVerifying}
-                className="w-full flex items-center justify-center space-x-3 bg-white border border-slate-200 py-4 rounded-2xl font-bold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all mb-8 disabled:opacity-50"
-              >
-                <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" className="w-6 h-6" alt="Google" />
-                <span>{isVerifying ? 'Authenticating...' : 'Sign in with Google Account'}</span>
-              </button>
-
-              <div className="relative flex items-center py-4 mb-4">
-                <div className="flex-grow border-t border-slate-100"></div>
-                <span className="flex-shrink mx-4 text-slate-300 text-[10px] font-bold uppercase tracking-widest">or verified email</span>
-                <div className="flex-grow border-t border-slate-100"></div>
+                <p className="text-slate-500 text-sm mt-1">Enter your email to receive a secure login code.</p>
               </div>
 
               <form onSubmit={handleInitialSubmit} className="space-y-5">
