@@ -10,23 +10,41 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         
-        /* Global override for input text visibility, especially for mobile browsers */
+        /* Reset and Force Visibility */
         input, select, textarea {
-            color: #000000 !important; /* Force black text in light mode */
+            background-color: #f8fafc !important; /* Default light bg */
+            color: #000000 !important; /* Force black text */
             -webkit-text-fill-color: #000000 !important;
+            opacity: 1 !important;
         }
 
-        /* Dark mode overrides */
+        /* Dark mode overrides - Force Dark Background and White Text */
+        .dark body { background-color: #020617; }
+        
         .dark input, .dark select, .dark textarea {
-            color: #ffffff !important; /* Force white text in dark mode */
+            background-color: #1e293b !important; /* bg-slate-800 */
+            color: #ffffff !important; /* Force white text */
             -webkit-text-fill-color: #ffffff !important;
+            border-color: #334155 !important;
         }
 
-        /* Placeholder styling */
+        /* Prevent background change on focus in dark mode to avoid white-on-white */
+        .dark input:focus, .dark select:focus, .dark textarea:focus {
+            background-color: #1e293b !important;
+            outline: 2px solid #f97316 !important;
+            border-color: transparent !important;
+        }
+
+        /* Light mode focus */
+        input:focus, select:focus, textarea:focus {
+            background-color: #ffffff !important;
+            outline: 2px solid #3b82f6 !important;
+        }
+
         ::placeholder {
             color: #94a3b8 !important;
             -webkit-text-fill-color: #94a3b8 !important;
-            opacity: 1;
+            opacity: 0.6;
         }
     </style>
 <script type="importmap">
