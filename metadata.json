@@ -1,0 +1,7 @@
+{
+  "name": "SmartStock Pro - Inventory & Payment Manager",
+  "description": "A comprehensive business management tool for tracking customers, stock levels (in/out), customer orders, and payment statuses with AI-powered business insights.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
