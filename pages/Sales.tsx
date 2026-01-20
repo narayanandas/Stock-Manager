@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../db';
 import { Product, Customer, StockLog } from '../types';
-import { Plus, ArrowUpRight, User, ShoppingBag, CreditCard, IndianRupee, Printer, Maximize } from 'lucide-react';
+import { Plus, ArrowUpRight, User, ShoppingBag, CreditCard, IndianRupee, Printer } from 'lucide-react';
 
 const formatINR = (val: number) => {
   return new Intl.NumberFormat('en-IN', {
@@ -71,14 +71,6 @@ const SalesPage: React.FC = () => {
     window.print();
   };
 
-  const handleScan = () => {
-    alert("Requesting camera access for barcode scan...");
-    // Future: Integrate a library like html5-qrcode
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(() => alert("Scanner Ready! Simulating read..."))
-      .catch(e => alert("Camera denied or unavailable."));
-  };
-
   return (
     <div className="space-y-6 animate-in slide-in-from-left-2 duration-300 pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -87,13 +79,6 @@ const SalesPage: React.FC = () => {
           <p className="text-slate-500 dark:text-slate-400">Track outward movements and invoices.</p>
         </div>
         <div className="flex space-x-3">
-          <button 
-            onClick={handleScan}
-            className="p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 transition-all flex items-center space-x-2"
-          >
-            <Maximize size={20} />
-            <span className="hidden md:inline font-bold">Scan</span>
-          </button>
           <button 
             onClick={() => setIsModalOpen(true)}
             className="bg-emerald-600 text-white px-6 py-3 rounded-2xl font-bold flex items-center space-x-2 hover:bg-emerald-700 shadow-lg shadow-emerald-200 dark:shadow-none transition-all"
