@@ -13,7 +13,9 @@ import {
   ShoppingBag,
   Moon,
   Sun,
-  ShieldCheck
+  ShieldCheck,
+  Settings,
+  Cloud
 } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import CustomersPage from './pages/Customers';
@@ -21,6 +23,7 @@ import ProductsPage from './pages/Products';
 import StockPage from './pages/Stock';
 import SalesPage from './pages/Sales';
 import PaymentsPage from './pages/Payments';
+import SettingsPage from './pages/Settings';
 
 const NavItem = ({ to, icon: Icon, label, active }: { to: string, icon: any, label: string, active: boolean }) => (
   <Link 
@@ -88,6 +91,7 @@ const App: React.FC = () => {
           <NavItem to="/stock" icon={ArrowDownLeft} label="Stock In" active={location.pathname === '/stock'} />
           <NavItem to="/sales" icon={ArrowUpRight} label="Stock Out" active={location.pathname === '/sales'} />
           <NavItem to="/payments" icon={CreditCard} label="Payments" active={location.pathname === '/payments'} />
+          <NavItem to="/settings" icon={Settings} label="Cloud & Backup" active={location.pathname === '/settings'} />
         </nav>
 
         <div className="p-4 border-t dark:border-slate-800 space-y-4">
@@ -116,6 +120,7 @@ const App: React.FC = () => {
             <Route path="/stock" element={<StockPage />} />
             <Route path="/sales" element={<SalesPage />} />
             <Route path="/payments" element={<PaymentsPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
@@ -126,7 +131,7 @@ const App: React.FC = () => {
         <Link to="/" className="p-2 text-slate-500 dark:text-slate-400 hover:text-orange-600"><LayoutDashboard size={24} /></Link>
         <Link to="/products" className="p-2 text-slate-500 dark:text-slate-400 hover:text-orange-600"><ShoppingBag size={24} /></Link>
         <Link to="/sales" className="p-2 text-slate-500 dark:text-slate-400 hover:text-orange-600"><ArrowUpRight size={24} /></Link>
-        <Link to="/payments" className="p-2 text-slate-500 dark:text-slate-400 hover:text-orange-600"><CreditCard size={24} /></Link>
+        <Link to="/settings" className="p-2 text-slate-500 dark:text-slate-400 hover:text-orange-600"><Settings size={24} /></Link>
       </div>
     </div>
   );

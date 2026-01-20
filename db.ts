@@ -68,5 +68,29 @@ export const db = {
       const updated = logs.map(l => l.id === id ? { ...l, ...updates } : l);
       save(KEYS.LOGS, updated);
     }
+  },
+  utils: {
+    exportFullDatabase: () => {
+      const data = {
+        customers: db.customers.getAll(),
+        products: db.products.getAll(),
+        logs: db.logs.getAll(),
+        exportedAt: new Date().toISOString(),
+        version: "1.0"
+      };
+      return JSON.stringify(data, null, 2);
+    },
+    importFullDatabase: (jsonString: string) => {
+      try {
+        const data = JSON.parse(jsonString);
+        if (data.customers) save(KEYS.CUSTOMERS, data.customers);
+        if (data.products) save(KEYS.PRODUCTS, data.products);
+        if (data.logs) save(KEYS.LOGS, data.logs);
+        return true;
+      } catch (e) {
+        console.error("Import failed", e);
+        return false;
+      }
+    }
   }
 };
