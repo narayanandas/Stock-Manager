@@ -167,7 +167,7 @@ const SalesPage: React.FC = () => {
                     <User size={20} className="text-slate-400" />
                   </div>
                   <select 
-                    className="w-full px-12 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:bg-white transition-all appearance-none text-slate-900 dark:text-white font-medium"
+                    className="w-full px-12 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:bg-white transition-all appearance-none text-black dark:text-white font-medium"
                     value={formData.customerId}
                     onChange={e => setFormData({ ...formData, customerId: e.target.value })}
                   >
@@ -183,7 +183,7 @@ const SalesPage: React.FC = () => {
                     <ShoppingBag size={20} className="text-slate-400" />
                   </div>
                   <select 
-                    className="w-full px-12 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:bg-white transition-all appearance-none text-slate-900 dark:text-white font-medium"
+                    className="w-full px-12 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:bg-white transition-all appearance-none text-black dark:text-white font-medium"
                     value={formData.productId}
                     onChange={e => setFormData({ ...formData, productId: e.target.value })}
                   >
@@ -196,7 +196,7 @@ const SalesPage: React.FC = () => {
                 <label className="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3 ml-1">Unit Count</label>
                 <input 
                   type="number"
-                  className="w-full px-6 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all font-mono font-bold text-slate-900 dark:text-white"
+                  className="w-full px-6 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all font-mono font-bold text-black dark:text-white"
                   value={formData.quantity}
                   onChange={e => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
                 />

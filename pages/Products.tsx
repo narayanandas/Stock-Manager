@@ -95,7 +95,7 @@ const ProductsPage: React.FC = () => {
         <input 
           type="text" 
           placeholder="Search items by name or category..." 
-          className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 pl-11 pr-4 py-4 rounded-2xl focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all shadow-sm text-slate-900 dark:text-white font-medium"
+          className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 pl-11 pr-4 py-4 rounded-2xl focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all shadow-sm text-black dark:text-white font-medium"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -144,7 +144,7 @@ const ProductsPage: React.FC = () => {
               <div className="col-span-2">
                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2 ml-1">Product Name</label>
                 <input 
-                  className="w-full px-5 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all text-slate-900 dark:text-white font-medium"
+                  className="w-full px-5 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all text-black dark:text-white font-medium"
                   value={formData.name}
                   onChange={e => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g. Ultra Fast Charger"
@@ -153,7 +153,7 @@ const ProductsPage: React.FC = () => {
               <div>
                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2 ml-1">Category</label>
                 <select 
-                  className="w-full px-5 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all text-slate-900 dark:text-white appearance-none font-medium"
+                  className="w-full px-5 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all text-black dark:text-white appearance-none font-medium"
                   value={formData.category}
                   onChange={e => setFormData({ ...formData, category: e.target.value })}
                 >
@@ -168,7 +168,7 @@ const ProductsPage: React.FC = () => {
                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2 ml-1">Min Stock Alert</label>
                 <input 
                   type="number"
-                  className="w-full px-5 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all text-slate-900 dark:text-white font-medium"
+                  className="w-full px-5 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all text-black dark:text-white font-medium"
                   value={formData.minStock}
                   onChange={e => setFormData({ ...formData, minStock: parseInt(e.target.value) || 0 })}
                 />
@@ -177,7 +177,7 @@ const ProductsPage: React.FC = () => {
                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2 ml-1">Cost Price (₹)</label>
                 <input 
                   type="number"
-                  className="w-full px-5 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all text-slate-900 dark:text-white font-bold"
+                  className="w-full px-5 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all text-black dark:text-white font-bold"
                   value={formData.costPrice}
                   onChange={e => setFormData({ ...formData, costPrice: parseFloat(e.target.value) || 0 })}
                 />
@@ -186,7 +186,7 @@ const ProductsPage: React.FC = () => {
                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2 ml-1">Sale Price (₹)</label>
                 <input 
                   type="number"
-                  className="w-full px-5 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all text-slate-900 dark:text-white font-bold"
+                  className="w-full px-5 py-4 rounded-2xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all text-black dark:text-white font-bold"
                   value={formData.unitPrice}
                   onChange={e => setFormData({ ...formData, unitPrice: parseFloat(e.target.value) || 0 })}
                 />

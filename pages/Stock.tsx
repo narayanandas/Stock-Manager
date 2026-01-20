@@ -107,7 +107,7 @@ const StockPage: React.FC = () => {
               <div>
                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Select Product</label>
                 <select 
-                  className="w-full px-4 py-3 rounded-xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all appearance-none text-slate-900 dark:text-white font-medium"
+                  className="w-full px-4 py-3 rounded-xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all appearance-none text-black dark:text-white font-medium"
                   value={formData.productId}
                   onChange={e => setFormData({ ...formData, productId: e.target.value })}
                 >
@@ -125,7 +125,7 @@ const StockPage: React.FC = () => {
                   </div>
                   <input 
                     type="number"
-                    className="w-full px-10 py-3 rounded-xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all font-mono text-slate-900 dark:text-white font-bold"
+                    className="w-full px-10 py-3 rounded-xl border dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all font-mono text-black dark:text-white font-bold"
                     value={formData.quantity}
                     onChange={e => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
                     placeholder="0"
