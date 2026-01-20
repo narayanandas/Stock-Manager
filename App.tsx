@@ -15,7 +15,7 @@ import {
   Sun,
   ShieldCheck,
   Settings,
-  Cloud
+  LogOut
 } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import CustomersPage from './pages/Customers';
@@ -24,6 +24,7 @@ import StockPage from './pages/Stock';
 import SalesPage from './pages/Sales';
 import PaymentsPage from './pages/Payments';
 import SettingsPage from './pages/Settings';
+import LoginPage from './pages/LoginPage';
 
 const NavItem = ({ to, icon: Icon, label, active }: { to: string, icon: any, label: string, active: boolean }) => (
   <Link 
@@ -40,6 +41,10 @@ const NavItem = ({ to, icon: Icon, label, active }: { to: string, icon: any, lab
 );
 
 const App: React.FC = () => {
+  const [user, setUser] = useState<{ name: string; email: string } | null>(() => {
+    const saved = localStorage.getItem('ss_user');
+    return saved ? JSON.parse(saved) : null;
+  });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('ss_dark') === 'true');
   const location = useLocation();
@@ -52,6 +57,20 @@ const App: React.FC = () => {
     }
     localStorage.setItem('ss_dark', String(darkMode));
   }, [darkMode]);
+
+  const handleLogin = (userData: { name: string; email: string }) => {
+    setUser(userData);
+    localStorage.setItem('ss_user', JSON.stringify(userData));
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem('ss_user');
+  };
+
+  if (!user) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
 
   const closeMenu = () => setIsMobileMenuOpen(false);
 
@@ -91,22 +110,25 @@ const App: React.FC = () => {
           <NavItem to="/stock" icon={ArrowDownLeft} label="Stock In" active={location.pathname === '/stock'} />
           <NavItem to="/sales" icon={ArrowUpRight} label="Stock Out" active={location.pathname === '/sales'} />
           <NavItem to="/payments" icon={CreditCard} label="Payments" active={location.pathname === '/payments'} />
-          <NavItem to="/settings" icon={Settings} label="Cloud & Backup" active={location.pathname === '/settings'} />
+          <NavItem to="/settings" icon={Settings} label="Cloud & Sync" active={location.pathname === '/settings'} />
         </nav>
 
         <div className="p-4 border-t dark:border-slate-800 space-y-4">
+          <div className="flex items-center space-x-3 px-3 py-2">
+             <div className="w-8 h-8 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center font-bold text-xs">{user.name.charAt(0)}</div>
+             <div className="flex-1 min-w-0">
+               <p className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">{user.name}</p>
+               <p className="text-[10px] text-slate-400 truncate">{user.email}</p>
+             </div>
+          </div>
+          
           <button 
             onClick={() => setDarkMode(!darkMode)}
             className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
           >
-            <span className="text-sm font-medium">{darkMode ? 'Dark Mode' : 'Light Mode'}</span>
-            {darkMode ? <Moon size={18} /> : <Sun size={18} />}
+            <span className="text-sm font-medium">{darkMode ? 'Dark' : 'Light'}</span>
+            {darkMode ? <Moon size={16} /> : <Sun size={16} />}
           </button>
-          
-          <div className="flex items-center space-x-2 px-2 text-slate-400">
-            <ShieldCheck size={16} className="text-emerald-500" />
-            <span className="text-[10px] font-bold uppercase tracking-widest">Local Session Active</span>
-          </div>
         </div>
       </aside>
 
@@ -120,7 +142,7 @@ const App: React.FC = () => {
             <Route path="/stock" element={<StockPage />} />
             <Route path="/sales" element={<SalesPage />} />
             <Route path="/payments" element={<PaymentsPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/settings" element={<SettingsPage onLogout={handleLogout} />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
