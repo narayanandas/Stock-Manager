@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Package, ShieldCheck, Chrome, User, Mail, ArrowRight } from 'lucide-react';
+import { Package, ShieldCheck, Chrome, ArrowRight, Mail, Lock } from 'lucide-react';
 
 interface LoginPageProps {
   onLogin: (user: { name: string; email: string; avatar?: string }) => void;
@@ -8,24 +8,39 @@ interface LoginPageProps {
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
+  const [step, setStep] = useState<'email' | 'loading' | 'success'>('email');
+  const [email, setEmail] = useState('');
 
   const handleGoogleClick = () => {
     setIsPopupOpen(true);
+    setStep('email');
   };
 
-  const selectAccount = (name: string, email: string) => {
-    setIsVerifying(true);
+  const handleContinue = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.includes('@gmail.com')) {
+      alert('Please enter a valid Gmail address');
+      return;
+    }
+
+    setStep('loading');
+    
+    // Extract a simulated name from the email
+    const namePart = email.split('@')[0];
+    const name = namePart.charAt(0).toUpperCase() + namePart.slice(1).replace(/[\._]/g, ' ');
+
     setTimeout(() => {
-      onLogin({ name, email });
-      setIsVerifying(false);
-      setIsPopupOpen(false);
-    }, 1200);
+      setStep('success');
+      setTimeout(() => {
+        onLogin({ name, email });
+        setIsPopupOpen(false);
+      }, 1000);
+    }, 1500);
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col justify-center items-center p-4 selection:bg-orange-100">
-      <div className="w-full max-w-md bg-white rounded-[3rem] shadow-2xl shadow-slate-300 overflow-hidden border border-white">
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-4 selection:bg-orange-100">
+      <div className="w-full max-w-md bg-white rounded-[3rem] shadow-2xl shadow-slate-200 overflow-hidden border border-white">
         {/* Brand Header */}
         <div className="bg-orange-600 p-12 text-white text-center relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-10">
@@ -36,15 +51,15 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               <Package size={42} />
             </div>
             <h1 className="text-3xl font-black tracking-tight">SmartStock Pro</h1>
-            <p className="text-orange-100 text-sm mt-2 font-bold uppercase tracking-widest opacity-80">Enterprise Inventory</p>
+            <p className="text-orange-100 text-sm mt-2 font-bold uppercase tracking-widest opacity-80">Cloud Inventory Manager</p>
           </div>
         </div>
 
         {/* Login Body */}
         <div className="p-10 pt-12">
           <div className="mb-10 text-center">
-            <h2 className="text-2xl font-black text-slate-800 tracking-tight">Business Login</h2>
-            <p className="text-slate-500 text-sm mt-2">Access your secure dashboard and cloud sync.</p>
+            <h2 className="text-2xl font-black text-slate-800 tracking-tight">Welcome Back</h2>
+            <p className="text-slate-500 text-sm mt-2 font-medium">Sign in to access your business records.</p>
           </div>
 
           <div className="space-y-4">
@@ -64,64 +79,97 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
             <div className="flex items-center my-8">
               <div className="flex-1 h-px bg-slate-100"></div>
-              <span className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Business Partner Access</span>
+              <span className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Secure Gateway</span>
               <div className="flex-1 h-px bg-slate-100"></div>
             </div>
 
-            <button className="w-full py-4 text-slate-400 font-bold text-sm hover:text-slate-600 transition-colors flex items-center justify-center space-x-2">
-              <span>Login with Work ID</span>
-              <ArrowRight size={14} />
-            </button>
+            <p className="text-center text-xs text-slate-400 leading-relaxed px-4">
+              By signing in, you agree to store your data securely in your private browser session and Google Drive.
+            </p>
           </div>
 
           <div className="mt-12 pt-8 border-t border-slate-50 flex items-center justify-center space-x-3 text-slate-400">
             <ShieldCheck size={18} className="text-emerald-500" />
-            <span className="text-[10px] font-black uppercase tracking-widest">SSL Secure Infrastructure</span>
+            <span className="text-[10px] font-black uppercase tracking-widest">Verified Business Environment</span>
           </div>
         </div>
       </div>
 
-      {/* Simulated Google Popup */}
+      {/* Realistic Google Sign-In Popup */}
       {isPopupOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-slate-100 flex items-center space-x-3">
-              <Chrome className="text-blue-500" size={24} />
-              <span className="font-bold text-slate-700">Choose an account</span>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col">
+            <div className="p-8 pb-4 flex flex-col items-center">
+              <div className="mb-6">
+                <svg className="w-10 h-10" viewBox="0 0 48 48">
+                  <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+                  <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+                  <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24s.92 7.54 2.56 10.78l7.97-6.19z"></path>
+                  <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+                </svg>
+              </div>
+              
+              <h3 className="text-xl font-bold text-slate-800">Sign in</h3>
+              <p className="text-slate-500 text-sm mt-1">Use your Google Account</p>
             </div>
-            
-            <div className="p-2">
-              {isVerifying ? (
-                <div className="py-20 text-center space-y-4">
-                  <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                  <p className="text-sm font-bold text-slate-500">Signing you in...</p>
-                </div>
-              ) : (
-                <>
-                  <button 
-                    onClick={() => selectAccount('Admin User', 'admin@business.com')}
-                    className="w-full flex items-center p-4 space-x-4 hover:bg-slate-50 rounded-xl transition-all"
-                  >
-                    <div className="w-10 h-10 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center font-bold">A</div>
-                    <div className="text-left">
-                      <p className="font-bold text-slate-800 text-sm">Admin User</p>
-                      <p className="text-xs text-slate-500">admin@business.com</p>
+
+            <div className="p-8 pt-4">
+              {step === 'email' && (
+                <form onSubmit={handleContinue} className="space-y-6">
+                  <div className="space-y-1">
+                    <div className="relative">
+                      <input 
+                        type="email" 
+                        required
+                        autoFocus
+                        placeholder="Email or phone"
+                        className="w-full px-4 py-4 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all text-slate-900"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
                     </div>
-                  </button>
-                  <button 
-                    onClick={() => selectAccount('Guest Manager', 'manager@guest.com')}
-                    className="w-full flex items-center p-4 space-x-4 hover:bg-slate-50 rounded-xl transition-all border-t border-slate-50"
-                  >
-                    <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">G</div>
-                    <div className="text-left">
-                      <p className="font-bold text-slate-800 text-sm">Guest Manager</p>
-                      <p className="text-xs text-slate-500">manager@guest.com</p>
-                    </div>
-                  </button>
-                  <div className="p-4 border-t border-slate-50">
-                    <button onClick={() => setIsPopupOpen(false)} className="text-sm font-bold text-blue-600 hover:underline">Use another account</button>
+                    <button type="button" className="text-sm font-bold text-blue-600 hover:text-blue-700">Forgot email?</button>
                   </div>
-                </>
+                  
+                  <div className="text-xs text-slate-500 leading-relaxed">
+                    Not your computer? Use Guest mode to sign in privately. <a href="#" className="text-blue-600 font-bold">Learn more</a>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4">
+                    <button 
+                      type="button"
+                      onClick={() => setIsPopupOpen(false)}
+                      className="text-sm font-bold text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      type="submit"
+                      className="bg-blue-600 text-white px-8 py-2.5 rounded-lg font-bold hover:bg-blue-700 transition-all shadow-md active:scale-95"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {step === 'loading' && (
+                <div className="py-12 flex flex-col items-center justify-center space-y-4">
+                  <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  <p className="font-bold text-slate-600">Verifying identity...</p>
+                </div>
+              )}
+
+              {step === 'success' && (
+                <div className="py-12 flex flex-col items-center justify-center space-y-4">
+                  <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center animate-bounce">
+                    <ShieldCheck size={32} />
+                  </div>
+                  <div className="text-center">
+                    <p className="font-bold text-slate-800 text-lg">Identity Verified</p>
+                    <p className="text-slate-500 text-sm">Welcome to SmartStock Pro</p>
+                  </div>
+                </div>
               )}
             </div>
           </div>

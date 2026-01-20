@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -46,6 +45,18 @@
             -webkit-text-fill-color: #94a3b8 !important;
             opacity: 0.6;
         }
+
+        /* Print Styles */
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; color: black !important; }
+            aside, main > div:not(.print-area), .fixed, button { display: none !important; }
+            main { padding: 0 !important; margin: 0 !important; }
+            .print-area { display: block !important; width: 100% !important; }
+            @page { margin: 1cm; }
+        }
+        .print-only { display: none; }
     </style>
 <script type="importmap">
 {
