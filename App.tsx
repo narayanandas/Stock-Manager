@@ -105,7 +105,7 @@ const App: React.FC = () => {
         <div className="md:hidden bg-white dark:bg-slate-900 border-b dark:border-slate-800 px-4 py-3 flex justify-between items-center sticky top-0 z-50">
           <div className="flex items-center space-x-2">
              <div className="w-8 h-8 rounded-full overflow-hidden border border-orange-200">
-              <img src="https://api.a0.dev/assets/image?text=Annachi%20friendly%20man%20logo%20mascot%20circular%20food%20groceries&aspect=1:1" alt="Annachi Logo" className="w-full h-full object-cover" />
+              <img src="/Image_Annachi" alt="Annachi Logo" className="w-full h-full object-cover" />
             </div>
             <span className="font-bold text-slate-800 dark:text-white">Annachi</span>
           </div>
