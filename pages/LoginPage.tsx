@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Package, ShieldCheck, Chrome, ArrowRight, Mail, Lock, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, CheckCircle2 } from 'lucide-react';
 
 interface LoginPageProps {
   onLogin: (user: { name: string; email: string; avatar?: string }) => void;
@@ -38,19 +38,24 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col justify-center items-center p-4 selection:bg-blue-100">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center items-center p-4 selection:bg-orange-100">
       <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-[3rem] shadow-2xl shadow-slate-200 dark:shadow-none overflow-hidden border border-slate-100 dark:border-slate-800">
         {/* Brand Header */}
-        <div className="bg-slate-900 dark:bg-black p-12 text-white text-center relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 opacity-5">
-            <Package size={200} />
-          </div>
+        <div className="bg-orange-600 p-12 text-white text-center relative overflow-hidden">
+           <div className="absolute inset-0 opacity-10 pointer-events-none">
+              <div className="grid grid-cols-4 gap-8 rotate-12 scale-150">
+                {[...Array(12)].map((_, i) => (
+                   <img key={i} src="https://api.a0.dev/assets/image?text=grocery%20icon%20minimalist%20white&aspect=1:1" className="w-20 h-20" alt="" />
+                ))}
+              </div>
+           </div>
+
           <div className="relative z-10">
-            <div className="w-20 h-20 bg-orange-600 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-orange-500/20">
-              <Package size={42} className="text-white" />
+            <div className="w-28 h-28 bg-white rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl overflow-hidden border-4 border-orange-400">
+              <img src="https://api.a0.dev/assets/image?text=Annachi%20friendly%20man%20logo%20mascot%20circular%20food%20groceries&aspect=1:1" alt="Annachi Logo" className="w-full h-full object-cover" />
             </div>
-            <h1 className="text-4xl font-black tracking-tight">SmartStock Pro</h1>
-            <p className="text-slate-400 text-sm mt-3 font-bold uppercase tracking-widest opacity-80">Cloud Inventory Intelligence</p>
+            <h1 className="text-5xl font-black tracking-tighter">Annachi</h1>
+            <p className="text-orange-100 text-sm mt-3 font-bold uppercase tracking-widest opacity-80">Smart Business Manager</p>
           </div>
         </div>
 
@@ -75,28 +80,16 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               <span className="text-slate-700 dark:text-white font-bold">Sign in with Google</span>
             </button>
 
-            <div className="flex items-center my-8">
-              <div className="flex-1 h-px bg-slate-100 dark:bg-slate-800"></div>
-              <span className="px-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Unified Identity</span>
-              <div className="flex-1 h-px bg-slate-100 dark:bg-slate-800"></div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 mt-8">
               <div className="p-4 bg-emerald-50 dark:bg-emerald-950/20 rounded-2xl flex items-center space-x-3">
                  <CheckCircle2 size={16} className="text-emerald-500" />
-                 <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase">Data Persistent</span>
+                 <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase">Secure</span>
               </div>
               <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-2xl flex items-center space-x-3">
                  <ShieldCheck size={16} className="text-blue-500" />
-                 <span className="text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase">Secure Link</span>
+                 <span className="text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase">Private</span>
               </div>
             </div>
-          </div>
-
-          <div className="mt-12 text-center">
-            <p className="text-xs text-slate-400 leading-relaxed max-w-xs mx-auto">
-              By logging in, you accept the enterprise terms of service and allow cloud synchronization of business assets.
-            </p>
           </div>
         </div>
       </div>
@@ -114,11 +107,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                   <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
                 </svg>
               </div>
-              
               <h3 className="text-xl font-bold text-slate-800 dark:text-white">Sign in</h3>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">to continue to SmartStock Pro</p>
+              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">to continue to Annachi</p>
             </div>
-
             <div className="p-8 pt-4">
               {step === 'email' && (
                 <form onSubmit={handleContinue} className="space-y-6">
@@ -128,51 +119,27 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                       required
                       autoFocus
                       placeholder="Email or phone"
-                      className="w-full px-4 py-4 rounded-xl border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all text-slate-900 dark:text-white"
+                      className="w-full px-4 py-4 rounded-xl border border-slate-300 dark:border-slate-700 dark:bg-slate-800 outline-none transition-all text-slate-900 dark:text-white"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
-                    <button type="button" className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700">Forgot email?</button>
                   </div>
-                  
-                  <div className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                    Not your computer? Use Guest mode to sign in privately. <a href="#" className="text-blue-600 dark:text-blue-400 font-bold">Learn more</a>
-                  </div>
-
                   <div className="flex items-center justify-between pt-4">
-                    <button 
-                      type="button"
-                      onClick={() => setIsPopupOpen(false)}
-                      className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 px-4 py-2 rounded-lg transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button 
-                      type="submit"
-                      className="bg-blue-600 dark:bg-blue-500 text-white px-8 py-2.5 rounded-lg font-bold hover:bg-blue-700 dark:hover:bg-blue-600 transition-all shadow-md active:scale-95"
-                    >
-                      Next
-                    </button>
+                    <button type="button" onClick={() => setIsPopupOpen(false)} className="text-sm font-bold text-blue-600">Cancel</button>
+                    <button type="submit" className="bg-blue-600 text-white px-8 py-2.5 rounded-lg font-bold">Next</button>
                   </div>
                 </form>
               )}
-
               {step === 'loading' && (
-                <div className="py-12 flex flex-col items-center justify-center space-y-4">
-                  <div className="w-12 h-12 border-4 border-blue-600 dark:border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                  <p className="font-bold text-slate-600 dark:text-slate-400">Restoring cloud data...</p>
+                <div className="py-12 flex flex-col items-center space-y-4">
+                  <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  <p className="font-bold text-slate-600">Syncing with Google Cloud...</p>
                 </div>
               )}
-
               {step === 'success' && (
-                <div className="py-12 flex flex-col items-center justify-center space-y-4">
-                  <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center">
-                    <CheckCircle2 size={32} />
-                  </div>
-                  <div className="text-center">
-                    <p className="font-bold text-slate-800 dark:text-white text-lg">Identity Synchronized</p>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm">Resuming session...</p>
-                  </div>
+                <div className="py-12 flex flex-col items-center space-y-4">
+                  <CheckCircle2 size={48} className="text-emerald-500" />
+                  <p className="font-bold text-slate-800">Welcome Back!</p>
                 </div>
               )}
             </div>

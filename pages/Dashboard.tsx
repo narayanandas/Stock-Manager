@@ -13,6 +13,7 @@ import {
   Banknote
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
+import { useTranslation } from '../App';
 
 const formatINR = (val: number) => {
   return new Intl.NumberFormat('en-IN', {
@@ -43,6 +44,8 @@ const StatCard = ({ title, value, icon: Icon, color, subtitle, currency, extra }
 );
 
 const Dashboard: React.FC = () => {
+  // Use darkMode from translation context to handle chart colors
+  const { t, lang, darkMode } = useTranslation();
   const [data, setData] = useState<{
     customers: Customer[],
     products: Product[],
@@ -78,7 +81,6 @@ const Dashboard: React.FC = () => {
 
   const balance = stats.stockIn - stats.stockOut;
   
-  // Calculate total units and value
   const totalUnits = data.products.reduce((acc, p) => {
     const pBalance = data.logs.reduce((b, l) => {
        if (l.productId === p.id) return l.type === 'IN' ? b + l.quantity : b - l.quantity;
@@ -96,8 +98,8 @@ const Dashboard: React.FC = () => {
   }, 0);
 
   const chartData = [
-    { name: 'Stock In', value: stats.stockIn },
-    { name: 'Sold', value: stats.stockOut },
+    { name: t('stockIn'), value: stats.stockIn },
+    { name: t('stockOut'), value: stats.stockOut },
     { name: 'Balance', value: balance },
   ];
 
@@ -105,8 +107,8 @@ const Dashboard: React.FC = () => {
     <div className="space-y-8 animate-in fade-in duration-500 pb-16">
       <header className="flex justify-between items-end">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Business Intelligence</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium">Real-time inventory & trade analysis for your enterprise.</p>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{t('businessIntel')}</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium">{t('realTimeAnalysis')}</p>
         </div>
         <button 
           onClick={refreshData}
@@ -120,16 +122,16 @@ const Dashboard: React.FC = () => {
       {/* Financial Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard 
-          title="Inventory Value" 
+          title={t('inventoryValue')} 
           value={invValue} 
           icon={Banknote} 
           color="bg-indigo-600" 
           currency 
-          extra={`${totalUnits} total units`}
+          extra={`${totalUnits} ${t('totalUnits')}`}
         />
-        <StatCard title="Estimated Profit" value={stats.totalProfit} icon={TrendingUp} color="bg-emerald-600" currency />
-        <StatCard title="Revenue (Total)" value={stats.totalSalesVal} icon={Wallet} color="bg-orange-600" currency />
-        <StatCard title="Active Customers" value={stats.totalCustomers} icon={Users} color="bg-blue-600" />
+        <StatCard title={t('estimatedProfit')} value={stats.totalProfit} icon={TrendingUp} color="bg-emerald-600" currency />
+        <StatCard title={t('revenue')} value={stats.totalSalesVal} icon={Wallet} color="bg-orange-600" currency />
+        <StatCard title={t('activeCustomers')} value={stats.totalCustomers} icon={Users} color="bg-blue-600" />
       </div>
 
       <div className="grid grid-cols-1 gap-8">
@@ -137,13 +139,8 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between mb-8">
             <h3 className="font-bold text-slate-800 dark:text-white flex items-center">
               <TrendingUp size={18} className="mr-2 text-orange-500" />
-              Inventory Volume Distribution
+              Inventory Analysis
             </h3>
-            <div className="flex items-center space-x-4 text-[10px] font-black uppercase tracking-widest text-slate-400">
-              <span className="flex items-center"><div className="w-2 h-2 rounded-full bg-orange-500 mr-2"></div> Inbound</span>
-              <span className="flex items-center"><div className="w-2 h-2 rounded-full bg-emerald-500 mr-2"></div> Outbound</span>
-              <span className="flex items-center"><div className="w-2 h-2 rounded-full bg-indigo-500 mr-2"></div> Net Stock</span>
-            </div>
           </div>
           <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -153,12 +150,12 @@ const Dashboard: React.FC = () => {
                   dataKey="name" 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{fill: '#ffffff', fontSize: 12, fontWeight: 'bold'}} 
+                  tick={{fill: darkMode ? '#ffffff' : '#475569', fontSize: 12, fontWeight: 'bold'}} 
                 />
                 <YAxis 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{fill: '#ffffff', fontSize: 12, fontWeight: 'bold'}} 
+                  tick={{fill: darkMode ? '#ffffff' : '#475569', fontSize: 12, fontWeight: 'bold'}} 
                 />
                 <Tooltip 
                   contentStyle={{ 
