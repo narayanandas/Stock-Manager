@@ -6,6 +6,8 @@ interface LoginPageProps {
   onLogin: (user: { name: string; email: string; avatar?: string }) => void;
 }
 
+const LOGO_URL = "https://api.a0.dev/assets/image?text=Annachi%20friendly%20man%20logo%20mascot%20circular%20food%20groceries&aspect=1:1";
+
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [step, setStep] = useState<'email' | 'loading' | 'success'>('email');
@@ -51,8 +53,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
            </div>
 
           <div className="relative z-10">
-            <div className="w-28 h-28 bg-white rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl overflow-hidden border-4 border-orange-400">
-              <img src="https://api.a0.dev/assets/image?text=Annachi%20friendly%20man%20logo%20mascot%20circular%20food%20groceries&aspect=1:1" alt="Annachi Logo" className="w-full h-full object-cover" />
+            <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl overflow-hidden border-4 border-orange-400 p-1">
+              <img src={LOGO_URL} alt="Annachi Logo" className="w-full h-full object-cover rounded-full" />
             </div>
             <h1 className="text-5xl font-black tracking-tighter">Annachi</h1>
             <p className="text-orange-100 text-sm mt-3 font-bold uppercase tracking-widest opacity-80">Smart Business Manager</p>
@@ -83,11 +85,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
             <div className="grid grid-cols-2 gap-4 mt-8">
               <div className="p-4 bg-emerald-50 dark:bg-emerald-950/20 rounded-2xl flex items-center space-x-3">
                  <CheckCircle2 size={16} className="text-emerald-500" />
-                 <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase">Secure</span>
+                 <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-tighter">Safe Data</span>
               </div>
               <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-2xl flex items-center space-x-3">
                  <ShieldCheck size={16} className="text-blue-500" />
-                 <span className="text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase">Private</span>
+                 <span className="text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-tighter">Verified</span>
               </div>
             </div>
           </div>
@@ -108,7 +110,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                 </svg>
               </div>
               <h3 className="text-xl font-bold text-slate-800 dark:text-white">Sign in</h3>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">to continue to Annachi</p>
+              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1 text-center">to continue to <span className="font-black">Annachi</span></p>
             </div>
             <div className="p-8 pt-4">
               {step === 'email' && (

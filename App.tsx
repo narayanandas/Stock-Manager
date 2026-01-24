@@ -28,7 +28,9 @@ import LoginPage from './pages/LoginPage';
 import ReportsPage from './pages/Reports';
 import { translations, Language } from './translations';
 
-// Create Language Context including darkMode
+// Logo Path Constant
+const LOGO_URL = "https://api.a0.dev/assets/image?text=Annachi%20friendly%20man%20logo%20mascot%20circular%20food%20groceries&aspect=1:1";
+
 const LanguageContext = createContext<{
   lang: Language;
   setLang: (l: Language) => void;
@@ -53,7 +55,7 @@ const NavItem = ({ to, icon: Icon, label, active }: { to: string, icon: any, lab
     }`}
   >
     <Icon size={20} />
-    <span className="font-medium">{label}</span>
+    <span className="font-medium whitespace-nowrap overflow-hidden text-ellipsis">{label}</span>
   </Link>
 );
 
@@ -104,10 +106,10 @@ const App: React.FC = () => {
         {/* Mobile Top Bar */}
         <div className="md:hidden bg-white dark:bg-slate-900 border-b dark:border-slate-800 px-4 py-3 flex justify-between items-center sticky top-0 z-50">
           <div className="flex items-center space-x-2">
-             <div className="w-8 h-8 rounded-full overflow-hidden border border-orange-200">
-              <img src="/image_Annachi" alt="Annachi Logo" className="w-full h-full object-cover" />
+            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-orange-500 shadow-sm">
+              <img src={LOGO_URL} alt="Annachi Logo" className="w-full h-full object-cover" />
             </div>
-            <span className="font-bold text-slate-800 dark:text-white">Annachi</span>
+            <span className="font-bold text-slate-800 dark:text-white text-lg">Annachi</span>
           </div>
           <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-slate-600 dark:text-slate-400">
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -122,8 +124,8 @@ const App: React.FC = () => {
           w-64 bg-white dark:bg-slate-900 border-r dark:border-slate-800 flex flex-col
         `}>
           <div className="hidden md:flex items-center space-x-3 p-6 mb-4">
-            <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-orange-500 shadow-lg">
-              <img src="https://api.a0.dev/assets/image?text=Annachi%20friendly%20man%20logo%20mascot%20circular%20food%20groceries&aspect=1:1" alt="Annachi Logo" className="w-full h-full object-cover" />
+            <div className="w-14 h-14 rounded-full overflow-hidden border-4 border-orange-500 shadow-xl">
+              <img src={LOGO_URL} alt="Annachi Logo" className="w-full h-full object-cover" />
             </div>
             <span className="text-2xl font-black tracking-tighter text-slate-800 dark:text-white">Annachi</span>
           </div>
@@ -139,20 +141,19 @@ const App: React.FC = () => {
             <NavItem to="/settings" icon={Settings} label={t('settings')} active={location.pathname === '/settings'} />
           </nav>
 
-          <div className="p-4 border-t dark:border-slate-800 space-y-4">
-            {/* Language Toggle */}
+          <div className="p-4 border-t dark:border-slate-800 space-y-3">
             <button 
               onClick={() => setLang(lang === 'en' ? 'ta' : 'en')}
-              className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-orange-50 dark:hover:bg-slate-700 transition-all border border-transparent hover:border-orange-100"
+              className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-orange-50 dark:hover:bg-slate-700 transition-all border border-transparent hover:border-orange-100"
             >
               <div className="flex items-center space-x-2">
-                <Languages size={16} className="text-orange-500" />
+                <Languages size={18} className="text-orange-500" />
                 <span className="text-sm font-bold">{lang === 'en' ? 'தமிழ்' : 'English'}</span>
               </div>
             </button>
 
             <div className="flex items-center space-x-3 px-3 py-2">
-               <div className="w-8 h-8 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center font-bold text-xs">{user.name.charAt(0)}</div>
+               <div className="w-8 h-8 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center font-bold text-xs shrink-0">{user.name.charAt(0)}</div>
                <div className="flex-1 min-w-0">
                  <p className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">{user.name}</p>
                </div>
@@ -162,7 +163,7 @@ const App: React.FC = () => {
               onClick={() => setDarkMode(!darkMode)}
               className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
             >
-              <span className="text-sm font-medium">{darkMode ? 'Dark' : 'Light'}</span>
+              <span className="text-sm font-medium">{darkMode ? t('logout').replace('Sign Out', 'Dark') : 'Light'}</span>
               {darkMode ? <Moon size={16} /> : <Sun size={16} />}
             </button>
           </div>
@@ -184,14 +185,6 @@ const App: React.FC = () => {
             </Routes>
           </div>
         </main>
-
-        {/* Mobile Bottom Navigation */}
-        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t dark:border-slate-800 flex justify-around p-2 z-40">
-          <Link to="/" className="p-2 text-slate-500 dark:text-slate-400 hover:text-orange-600"><LayoutDashboard size={24} /></Link>
-          <Link to="/reports" className="p-2 text-slate-500 dark:text-slate-400 hover:text-orange-600"><BarChart3 size={24} /></Link>
-          <Link to="/sales" className="p-2 text-slate-500 dark:text-slate-400 hover:text-orange-600"><ArrowUpRight size={24} /></Link>
-          <Link to="/settings" className="p-2 text-slate-500 dark:text-slate-400 hover:text-orange-600"><Settings size={24} /></Link>
-        </div>
       </div>
     </LanguageContext.Provider>
   );
