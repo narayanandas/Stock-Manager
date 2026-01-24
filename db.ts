@@ -67,6 +67,10 @@ export const db = {
       const logs = db.logs.getAll();
       const updated = logs.map(l => l.id === id ? { ...l, ...updates } : l);
       save(KEYS.LOGS, updated);
+    },
+    delete: (id: string) => {
+      const logs = db.logs.getAll();
+      save(KEYS.LOGS, logs.filter(l => l.id !== id));
     }
   },
   utils: {

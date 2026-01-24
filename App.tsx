@@ -13,9 +13,8 @@ import {
   ShoppingBag,
   Moon,
   Sun,
-  ShieldCheck,
   Settings,
-  LogOut
+  BarChart3
 } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import CustomersPage from './pages/Customers';
@@ -25,6 +24,7 @@ import SalesPage from './pages/Sales';
 import PaymentsPage from './pages/Payments';
 import SettingsPage from './pages/Settings';
 import LoginPage from './pages/LoginPage';
+import ReportsPage from './pages/Reports';
 
 const NavItem = ({ to, icon: Icon, label, active }: { to: string, icon: any, label: string, active: boolean }) => (
   <Link 
@@ -66,6 +66,8 @@ const App: React.FC = () => {
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('ss_user');
+    // Note: Inventory data in localStorage (ss_customers, etc) is NOT deleted,
+    // so it persists for the next login as requested.
   };
 
   if (!user) {
@@ -103,13 +105,14 @@ const App: React.FC = () => {
           <span className="text-xl font-bold tracking-tight text-slate-800 dark:text-white">SmartStock Pro</span>
         </div>
 
-        <nav className="flex-1 px-4 space-y-1 mt-4 md:mt-0">
+        <nav className="flex-1 px-4 space-y-1 mt-4 md:mt-0 overflow-y-auto">
           <NavItem to="/" icon={LayoutDashboard} label="Dashboard" active={location.pathname === '/'} />
           <NavItem to="/customers" icon={Users} label="Customers" active={location.pathname === '/customers'} />
           <NavItem to="/products" icon={ShoppingBag} label="Products" active={location.pathname === '/products'} />
           <NavItem to="/stock" icon={ArrowDownLeft} label="Stock In" active={location.pathname === '/stock'} />
           <NavItem to="/sales" icon={ArrowUpRight} label="Stock Out" active={location.pathname === '/sales'} />
           <NavItem to="/payments" icon={CreditCard} label="Payments" active={location.pathname === '/payments'} />
+          <NavItem to="/reports" icon={BarChart3} label="Sales Reports" active={location.pathname === '/reports'} />
           <NavItem to="/settings" icon={Settings} label="Cloud & Sync" active={location.pathname === '/settings'} />
         </nav>
 
@@ -142,6 +145,7 @@ const App: React.FC = () => {
             <Route path="/stock" element={<StockPage />} />
             <Route path="/sales" element={<SalesPage />} />
             <Route path="/payments" element={<PaymentsPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
             <Route path="/settings" element={<SettingsPage onLogout={handleLogout} />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
@@ -151,7 +155,7 @@ const App: React.FC = () => {
       {/* Mobile Bottom Navigation */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t dark:border-slate-800 flex justify-around p-2 z-40">
         <Link to="/" className="p-2 text-slate-500 dark:text-slate-400 hover:text-orange-600"><LayoutDashboard size={24} /></Link>
-        <Link to="/products" className="p-2 text-slate-500 dark:text-slate-400 hover:text-orange-600"><ShoppingBag size={24} /></Link>
+        <Link to="/reports" className="p-2 text-slate-500 dark:text-slate-400 hover:text-orange-600"><BarChart3 size={24} /></Link>
         <Link to="/sales" className="p-2 text-slate-500 dark:text-slate-400 hover:text-orange-600"><ArrowUpRight size={24} /></Link>
         <Link to="/settings" className="p-2 text-slate-500 dark:text-slate-400 hover:text-orange-600"><Settings size={24} /></Link>
       </div>
