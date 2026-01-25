@@ -9,7 +9,7 @@ interface LoginPageProps {
 }
 
 // Local Logo Path
-const LOGO_URL = "/logo.png";
+const LOGO_URL = "./logo.png";
 
 const parseJwt = (token: string) => {
   try {
