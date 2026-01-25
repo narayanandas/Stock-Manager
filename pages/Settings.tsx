@@ -30,7 +30,7 @@ const formatINR = (val: number) => {
   }).format(val);
 };
 
-type ReportPeriod = 'WEEKLY' | 'MONTHLY' | 'YEARLY' | 'ALL';
+type ReportPeriod = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY' | 'ALL';
 
 const PrintableReport: React.FC<{ period: ReportPeriod }> = ({ period }) => {
     const { t } = useTranslation();
@@ -43,6 +43,9 @@ const PrintableReport: React.FC<{ period: ReportPeriod }> = ({ period }) => {
         const now = new Date();
         return allLogs.filter(log => {
             const logDate = new Date(log.date);
+            if (period === 'DAILY') {
+                return logDate.toDateString() === now.toDateString();
+            }
             if (period === 'WEEKLY') {
                 const lastWeek = new Date();
                 lastWeek.setDate(now.getDate() - 7);
@@ -107,7 +110,7 @@ const PrintableReport: React.FC<{ period: ReportPeriod }> = ({ period }) => {
 
     const topProducts = Object.entries(productStats)
         .sort((a, b) => b[1].revenue - a[1].revenue)
-        .slice(0, 10);
+        .slice(0, 15);
 
     // Pending Receivables (Dashboard Detail)
     const pendingLogs = salesLogs.filter(l => l.paymentStatus === 'PENDING');
@@ -122,7 +125,7 @@ const PrintableReport: React.FC<{ period: ReportPeriod }> = ({ period }) => {
                 <div>
                     <h1 className="text-4xl font-black text-slate-900 tracking-tighter">Annachi Business Hub</h1>
                     <p className="text-orange-600 font-bold uppercase tracking-widest text-sm">
-                        {period === 'ALL' ? 'Full Business Statement' : `${period} Business Performance Report`}
+                        {period === 'ALL' ? 'Full Business Audit' : `${period} Business Performance Report`}
                     </p>
                     <div className="mt-4 text-slate-600 text-sm">
                         <p className="font-bold">Authorized By: {user.name}</p>
@@ -130,86 +133,87 @@ const PrintableReport: React.FC<{ period: ReportPeriod }> = ({ period }) => {
                     </div>
                 </div>
                 <div className="text-right">
-                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Report Date</p>
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Generation Timestamp</p>
                     <p className="text-lg font-bold">{new Date().toLocaleString()}</p>
+                    <p className="text-xs text-slate-400 font-bold mt-1">Reporting Period: {period}</p>
                 </div>
             </div>
 
-            <div className="space-y-10">
-                {/* 1. Dashboard Financial Summary */}
+            <div className="space-y-12">
+                {/* 1. Executive Dashboard Section */}
                 <section>
-                    <h2 className="text-xl font-bold border-b border-slate-200 mb-6 pb-2 text-slate-800 uppercase tracking-tight">Executive Dashboard</h2>
+                    <h2 className="text-xl font-bold border-b border-slate-200 mb-6 pb-2 text-slate-800 uppercase tracking-tight">Executive Dashboard Highlights</h2>
                     <div className="grid grid-cols-4 gap-4">
                         <div className="p-4 bg-slate-50 border rounded-xl">
                             <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Total Revenue</p>
                             <p className="text-xl font-black text-slate-900">{formatINR(totalRevenue)}</p>
                         </div>
                         <div className="p-4 bg-slate-50 border rounded-xl">
-                            <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Estimated Profit</p>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Net Margin (Profit)</p>
                             <p className="text-xl font-black text-emerald-600">{formatINR(estimatedProfit)}</p>
                         </div>
                         <div className="p-4 bg-slate-50 border rounded-xl">
-                            <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Inventory Asset Value</p>
-                            <p className="text-xl font-black text-indigo-600">{formatINR(totalInventoryValue)}</p>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Trade Volume</p>
+                            <p className="text-xl font-black text-indigo-600">{logs.length} <span className="text-[10px] opacity-50">Trans</span></p>
                         </div>
                         <div className="p-4 bg-slate-50 border rounded-xl">
-                            <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Active Customer Base</p>
-                            <p className="text-xl font-black text-slate-900">{activeCustomersCount}</p>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Portfolio Valuation</p>
+                            <p className="text-xl font-black text-slate-900">{formatINR(totalInventoryValue)}</p>
                         </div>
                     </div>
 
                     <div className="mt-6 grid grid-cols-2 gap-4">
                         <div className="p-4 border rounded-xl bg-orange-50/30">
-                            <h3 className="text-xs font-black text-orange-600 uppercase mb-3">Stock Movement Summary</h3>
+                            <h3 className="text-xs font-black text-orange-600 uppercase mb-3">Stock Flow Analysis</h3>
                             <div className="flex justify-between text-sm">
-                                <span className="text-slate-500">Units Received (Stock In):</span>
+                                <span className="text-slate-500">Inbound Supply (Units):</span>
                                 <span className="font-bold text-indigo-600">+{totalStockInQty}</span>
                             </div>
                             <div className="flex justify-between text-sm mt-1">
-                                <span className="text-slate-500">Units Sold (Stock Out):</span>
+                                <span className="text-slate-500">Outbound Dispatch (Units):</span>
                                 <span className="font-bold text-emerald-600">-{totalStockOutQty}</span>
                             </div>
                         </div>
                         <div className="p-4 border rounded-xl bg-amber-50/30">
-                            <h3 className="text-xs font-black text-amber-600 uppercase mb-3">Receivables Summary</h3>
+                            <h3 className="text-xs font-black text-amber-600 uppercase mb-3">Receivables & Cashflow</h3>
                             <div className="flex justify-between text-sm">
-                                <span className="text-slate-500">Pending Payment Count:</span>
+                                <span className="text-slate-500">Unsettled Invoices:</span>
                                 <span className="font-bold text-slate-700">{pendingLogs.length}</span>
                             </div>
                             <div className="flex justify-between text-sm mt-1">
-                                <span className="text-slate-500">Total Outstanding Amount:</span>
+                                <span className="text-slate-500">Outstanding Amount:</span>
                                 <span className="font-bold text-amber-600">{formatINR(totalPendingValue)}</span>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                {/* 2. Critical Dashboard Alerts */}
+                {/* 2. Critical Alerts (From Dashboard) */}
                 {lowStockAlerts.length > 0 && (
                     <section className="bg-red-50 border border-red-100 p-6 rounded-2xl">
-                        <h2 className="text-red-600 font-black text-sm uppercase tracking-widest mb-3">Inventory Replenishment Alerts</h2>
-                        <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
+                        <h2 className="text-red-600 font-black text-xs uppercase tracking-[0.2em] mb-4">Urgent: Inventory Depletion Alerts</h2>
+                        <div className="grid grid-cols-3 gap-x-8 gap-y-3 text-sm">
                             {lowStockAlerts.map(p => (
-                                <div key={p.id} className="flex justify-between border-b border-red-100 pb-1">
-                                    <span className="font-medium text-red-900">{p.name}</span>
-                                    <span className="font-black text-red-600">Qty: {getStockBalance(p.id)} (Min: {p.minStock})</span>
+                                <div key={p.id} className="flex flex-col border-b border-red-100 pb-1">
+                                    <span className="font-bold text-red-900 truncate">{p.name}</span>
+                                    <span className="text-[10px] font-black text-red-600 uppercase">Available: {getStockBalance(p.id)} (Limit: {p.minStock})</span>
                                 </div>
                             ))}
                         </div>
                     </section>
                 )}
 
-                {/* 3. Sales Report Detail - Best Sellers */}
+                {/* 3. Detailed Sales Performance (Top Products) */}
                 <section>
-                    <h2 className="text-xl font-bold border-b border-slate-200 mb-4 pb-2 text-slate-800 uppercase tracking-tight">Trade Analysis: Top Selling Items</h2>
+                    <h2 className="text-xl font-bold border-b border-slate-200 mb-4 pb-2 text-slate-800 uppercase tracking-tight">Detailed Sales Performance: Best Selling Items</h2>
                     {topProducts.length > 0 ? (
                         <table className="w-full text-xs">
                             <thead className="bg-slate-50">
                                 <tr>
-                                    <th className="text-left py-3 px-4 border">Product Name</th>
-                                    <th className="text-right py-3 px-4 border">Units Dispatched</th>
-                                    <th className="text-right py-3 px-4 border">Total Revenue Generated</th>
-                                    <th className="text-right py-3 px-4 border">% of Period Revenue</th>
+                                    <th className="text-left py-3 px-4 border">Item Name</th>
+                                    <th className="text-right py-3 px-4 border">Quantity Sold</th>
+                                    <th className="text-right py-3 px-4 border">Gross Revenue</th>
+                                    <th className="text-right py-3 px-4 border">Revenue Share (%)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -226,23 +230,25 @@ const PrintableReport: React.FC<{ period: ReportPeriod }> = ({ period }) => {
                             </tbody>
                         </table>
                     ) : (
-                        <p className="text-slate-400 italic text-center py-4 border-2 border-dashed rounded-xl">No sales activity for this period.</p>
+                        <div className="p-12 text-center text-slate-400 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 italic">
+                            No sales records available for the selected period ({period}).
+                        </div>
                     )}
                 </section>
 
-                {/* 4. Detailed Ledger Statement */}
-                <section className="break-before-page">
-                    <h2 className="text-xl font-bold border-b border-slate-200 mb-4 pb-2 text-slate-800 uppercase tracking-tight">Detailed Activity Log ({period})</h2>
+                {/* 4. Ledger Activity Log (Period Specific) */}
+                <section className="break-before-page pt-10">
+                    <h2 className="text-xl font-bold border-b border-slate-200 mb-4 pb-2 text-slate-800 uppercase tracking-tight">Complete Transaction Log ({period})</h2>
                     <table className="w-full text-[9px]">
                         <thead className="bg-slate-50">
                             <tr>
-                                <th className="text-left py-2 px-3 border">Timestamp</th>
+                                <th className="text-left py-2 px-3 border">Date</th>
                                 <th className="text-left py-2 px-3 border">Type</th>
-                                <th className="text-left py-2 px-3 border">SKU Name</th>
+                                <th className="text-left py-2 px-3 border">Product SKU</th>
                                 <th className="text-left py-2 px-3 border">Entity (Cust/Supp)</th>
                                 <th className="text-right py-2 px-3 border">Qty</th>
                                 <th className="text-center py-2 px-3 border">Payment</th>
-                                <th className="text-right py-2 px-3 border">Value</th>
+                                <th className="text-right py-2 px-3 border">Total Value</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -252,22 +258,22 @@ const PrintableReport: React.FC<{ period: ReportPeriod }> = ({ period }) => {
                                 const val = log.quantity * (p?.unitPrice || 0);
                                 return (
                                     <tr key={log.id}>
-                                        <td className="py-1 px-3 border text-slate-400">{new Date(log.date).toLocaleDateString()}</td>
-                                        <td className={`py-1 px-3 border font-black ${log.type === 'IN' ? 'text-blue-600' : 'text-emerald-600'}`}>{log.type}</td>
-                                        <td className="py-1 px-3 border font-medium">{p?.name}</td>
-                                        <td className="py-1 px-3 border">{c?.name || 'Bulk Inbound'}</td>
+                                        <td className="py-1 px-3 border text-slate-500 whitespace-nowrap">{new Date(log.date).toLocaleDateString()}</td>
+                                        <td className={`py-1 px-3 border font-black uppercase text-[8px] ${log.type === 'IN' ? 'text-blue-600' : 'text-emerald-600'}`}>{log.type}</td>
+                                        <td className="py-1 px-3 border font-bold">{p?.name}</td>
+                                        <td className="py-1 px-3 border">{c?.name || 'Supply Delivery'}</td>
                                         <td className="py-1 px-3 border text-right font-mono">{log.type === 'IN' ? '+' : '-'}{log.quantity}</td>
-                                        <td className={`py-1 px-3 border text-center font-bold text-[8px] ${log.paymentStatus === 'PAID' ? 'text-emerald-500' : 'text-amber-500'}`}>
+                                        <td className={`py-1 px-3 border text-center font-bold text-[7px] ${log.paymentStatus === 'PAID' ? 'text-emerald-500' : 'text-amber-500'}`}>
                                             {log.type === 'OUT' ? log.paymentStatus : '-'}
                                         </td>
-                                        <td className="py-1 px-3 border text-right font-bold">{log.type === 'OUT' ? formatINR(val) : '-'}</td>
+                                        <td className="py-1 px-3 border text-right font-black">{log.type === 'OUT' ? formatINR(val) : '-'}</td>
                                     </tr>
                                 );
                             })}
                         </tbody>
-                        <tfoot className="bg-slate-50 font-black">
+                        <tfoot className="bg-slate-50 font-black text-sm">
                             <tr>
-                                <td colSpan={6} className="py-3 px-4 border text-right uppercase">Period Total Sales Value:</td>
+                                <td colSpan={6} className="py-3 px-4 border text-right uppercase tracking-wider">Net Sales Revenue for Period:</td>
                                 <td className="py-3 px-4 border text-right text-emerald-700">{formatINR(totalRevenue)}</td>
                             </tr>
                         </tfoot>
@@ -275,8 +281,8 @@ const PrintableReport: React.FC<{ period: ReportPeriod }> = ({ period }) => {
                 </section>
             </div>
 
-            <footer className="mt-20 pt-10 border-t border-slate-100 text-center text-slate-400 text-[9px] uppercase tracking-[0.3em]">
-                Secure Business Audit Report • Annachi Pro Ecosystem • {new Date().getFullYear()}
+            <footer className="mt-24 pt-10 border-t border-slate-100 text-center text-slate-400 text-[8px] uppercase tracking-[0.4em]">
+                Verified Digital Report • Annachi Pro Management • This is a period-specific trade statement for internal business audit.
             </footer>
         </div>
     );
@@ -430,21 +436,21 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onLogout }) => {
           <div className="w-14 h-14 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mb-6">
             <Database size={32} />
           </div>
-          <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{t('confirm').replace('Confirm', 'Manual Control')}</h3>
+          <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Cloud Export & Reports</h3>
           <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-6">
-            Generate and export custom business reports. Choose a period and export as a professional PDF.
+            Generate customized PDF business reports based on your trade periods. Choose a period below for audit details.
           </p>
           
           <div className="space-y-5">
             {/* Period Selector */}
             <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Report Detail Level</label>
-                <div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-xl border dark:border-slate-700">
-                    {(['WEEKLY', 'MONTHLY', 'YEARLY', 'ALL'] as ReportPeriod[]).map(p => (
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Choose Export Detail Level</label>
+                <div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-xl border dark:border-slate-700 overflow-hidden">
+                    {(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'ALL'] as ReportPeriod[]).map(p => (
                         <button 
                             key={p}
                             onClick={() => setReportPeriod(p)}
-                            className={`flex-1 py-1.5 rounded-lg text-[10px] font-black tracking-tighter uppercase transition-all ${
+                            className={`flex-1 py-2 rounded-lg text-[9px] font-black tracking-tight uppercase transition-all ${
                                 reportPeriod === p 
                                     ? 'bg-orange-600 text-white shadow-sm' 
                                     : 'text-slate-400 hover:text-slate-600'
@@ -461,7 +467,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onLogout }) => {
               className="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold flex items-center justify-center space-x-2 hover:bg-orange-700 transition-all shadow-lg shadow-orange-100 dark:shadow-none"
             >
               <FileText size={20} />
-              <span>Export {reportPeriod} PDF</span>
+              <span>Generate {reportPeriod} PDF Report</span>
             </button>
             
             <div className="grid grid-cols-2 gap-3">
@@ -471,11 +477,11 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onLogout }) => {
                     title="Export for system restore"
                 >
                     <FileJson size={16} />
-                    <span>Backup JSON</span>
+                    <span>Local JSON Backup</span>
                 </button>
                 <label className="flex-1 bg-slate-100 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 py-3 rounded-2xl font-bold text-xs flex items-center justify-center space-x-2 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer">
                     <Upload size={16} />
-                    <span>Import JSON</span>
+                    <span>Restore Data</span>
                     <input type="file" accept=".json" onChange={handleImport} className="hidden" />
                 </label>
             </div>
@@ -489,10 +495,10 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onLogout }) => {
             <ShieldCheck size={24} />
           </div>
           <div>
-            <h4 className="font-bold text-orange-900 dark:text-orange-400 text-lg">Data Sovereignty</h4>
+            <h4 className="font-bold text-orange-900 dark:text-orange-400 text-lg">Cloud Privacy & Data Hub</h4>
             <p className="text-orange-700 dark:text-orange-300 text-sm mt-1 leading-relaxed">
-              Annachi Pro uses client-side encryption. When connected to Google Drive, we only access a dedicated folder for your backups. 
-              Your customers' sensitive data never touches external servers.
+              Annachi Pro manages your trade data with full sovereignty. Exporting to PDF generates a period-specific audit log which captures 
+              Dashboard stats and Sales performance for your chosen timeline.
             </p>
           </div>
         </div>
