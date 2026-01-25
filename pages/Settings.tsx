@@ -1,6 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { db } from '../db';
+import { StockLog, Product, Customer } from '../types';
 import { 
   Download, 
   Upload, 
@@ -12,8 +13,10 @@ import {
   CheckCircle2,
   LogOut,
   FileText,
-  FileJson
+  FileJson,
+  Calendar
 } from 'lucide-react';
+import { useTranslation } from '../App';
 
 interface SettingsPageProps {
   onLogout: () => void;
@@ -27,14 +30,42 @@ const formatINR = (val: number) => {
   }).format(val);
 };
 
-const PrintableReport: React.FC = () => {
+type ReportPeriod = 'WEEKLY' | 'MONTHLY' | 'YEARLY' | 'ALL';
+
+const PrintableReport: React.FC<{ period: ReportPeriod }> = ({ period }) => {
     const customers = db.customers.getAll();
     const products = db.products.getAll();
-    const logs = db.logs.getAll();
+    const allLogs = db.logs.getAll();
     const user = JSON.parse(localStorage.getItem('ss_user') || '{}');
 
+    const getFilteredLogs = () => {
+        const now = new Date();
+        return allLogs.filter(log => {
+            const logDate = new Date(log.date);
+            if (period === 'WEEKLY') {
+                const lastWeek = new Date();
+                lastWeek.setDate(now.getDate() - 7);
+                return logDate >= lastWeek;
+            }
+            if (period === 'MONTHLY') {
+                return logDate.getMonth() === now.getMonth() && logDate.getFullYear() === now.getFullYear();
+            }
+            if (period === 'YEARLY') {
+                return logDate.getFullYear() === now.getFullYear();
+            }
+            return true;
+        });
+    };
+
+    const logs = getFilteredLogs();
+    const salesLogs = logs.filter(l => l.type === 'OUT');
+    const totalRevenue = salesLogs.reduce((acc, log) => {
+        const p = products.find(prod => prod.id === log.productId);
+        return acc + (log.quantity * (p?.unitPrice || 0));
+    }, 0);
+
     const getStockBalance = (productId: string) => {
-        return logs.reduce((acc, log) => {
+        return allLogs.reduce((acc, log) => {
             if (log.productId !== productId) return acc;
             return log.type === 'IN' ? acc + log.quantity : acc - log.quantity;
         }, 0);
@@ -44,20 +75,41 @@ const PrintableReport: React.FC = () => {
         <div className="print-only p-10 bg-white text-black min-h-screen">
             <div className="flex justify-between items-start border-b-4 border-orange-600 pb-8 mb-8">
                 <div>
-                    <h1 className="text-4xl font-black text-slate-900 tracking-tighter">SmartStock Pro</h1>
-                    <p className="text-orange-600 font-bold uppercase tracking-widest text-sm">Enterprise Business Report</p>
+                    <h1 className="text-4xl font-black text-slate-900 tracking-tighter">Annachi Business Hub</h1>
+                    <p className="text-orange-600 font-bold uppercase tracking-widest text-sm">
+                        {period === 'ALL' ? 'Full Business Statement' : `${period} Performance Report`}
+                    </p>
                     <div className="mt-4 text-slate-600 text-sm">
-                        <p className="font-bold">Owner: {user.name}</p>
+                        <p className="font-bold">Authorized By: {user.name}</p>
                         <p>{user.email}</p>
                     </div>
                 </div>
                 <div className="text-right">
-                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Generated On</p>
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Report Date</p>
                     <p className="text-lg font-bold">{new Date().toLocaleString()}</p>
                 </div>
             </div>
 
             <div className="space-y-12">
+                {/* Financial Period Summary */}
+                <section className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                    <h2 className="text-lg font-bold mb-4 text-slate-800">Financial Summary ({period})</h2>
+                    <div className="grid grid-cols-3 gap-8">
+                        <div>
+                            <p className="text-xs font-bold text-slate-400 uppercase">Total Revenue</p>
+                            <p className="text-2xl font-black text-emerald-600">{formatINR(totalRevenue)}</p>
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold text-slate-400 uppercase">Transactions</p>
+                            <p className="text-2xl font-black text-slate-800">{logs.length}</p>
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold text-slate-400 uppercase">Avg. Ticket Size</p>
+                            <p className="text-2xl font-black text-slate-800">{logs.length ? formatINR(totalRevenue / logs.length) : '₹0'}</p>
+                        </div>
+                    </div>
+                </section>
+
                 {/* Inventory Summary */}
                 <section>
                     <h2 className="text-xl font-bold border-b border-slate-200 mb-4 pb-2 text-slate-800">1. Current Inventory Status</h2>
@@ -85,34 +137,9 @@ const PrintableReport: React.FC = () => {
                     </table>
                 </section>
 
-                {/* Customer List */}
-                <section>
-                    <h2 className="text-xl font-bold border-b border-slate-200 mb-4 pb-2 text-slate-800">2. Customer Directory</h2>
-                    <table className="w-full text-sm">
-                        <thead className="bg-slate-50">
-                            <tr>
-                                <th className="text-left py-3 px-4 border">Name</th>
-                                <th className="text-left py-3 px-4 border">Phone</th>
-                                <th className="text-left py-3 px-4 border">Email</th>
-                                <th className="text-left py-3 px-4 border">Address</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {customers.map(c => (
-                                <tr key={c.id}>
-                                    <td className="py-2 px-4 border font-medium">{c.name}</td>
-                                    <td className="py-2 px-4 border">{c.phone}</td>
-                                    <td className="py-2 px-4 border">{c.email}</td>
-                                    <td className="py-2 px-4 border">{c.address}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </section>
-
                 {/* Recent Logs */}
                 <section className="break-before-page">
-                    <h2 className="text-xl font-bold border-b border-slate-200 mb-4 pb-2 text-slate-800">3. Recent Transactions (Last 50)</h2>
+                    <h2 className="text-xl font-bold border-b border-slate-200 mb-4 pb-2 text-slate-800">2. Transaction Detail ({period})</h2>
                     <table className="w-full text-xs">
                         <thead className="bg-slate-50">
                             <tr>
@@ -121,13 +148,14 @@ const PrintableReport: React.FC = () => {
                                 <th className="text-left py-2 px-3 border">Product</th>
                                 <th className="text-left py-2 px-3 border">Customer</th>
                                 <th className="text-right py-2 px-3 border">Qty</th>
-                                <th className="text-center py-2 px-3 border">Payment</th>
+                                <th className="text-right py-2 px-3 border">Value</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {logs.slice(-50).reverse().map(log => {
+                            {logs.slice().reverse().map(log => {
                                 const p = products.find(prod => prod.id === log.productId);
                                 const c = customers.find(cust => cust.id === log.customerId);
+                                const val = log.quantity * (p?.unitPrice || 0);
                                 return (
                                     <tr key={log.id}>
                                         <td className="py-1 px-3 border">{new Date(log.date).toLocaleDateString()}</td>
@@ -135,26 +163,29 @@ const PrintableReport: React.FC = () => {
                                         <td className="py-1 px-3 border">{p?.name}</td>
                                         <td className="py-1 px-3 border">{c?.name || 'Inbound Supply'}</td>
                                         <td className="py-1 px-3 border text-right font-mono">{log.type === 'IN' ? '+' : '-'}{log.quantity}</td>
-                                        <td className="py-1 px-3 border text-center">{log.paymentStatus || '-'}</td>
+                                        <td className="py-1 px-3 border text-right font-bold">{log.type === 'OUT' ? formatINR(val) : '-'}</td>
                                     </tr>
                                 );
                             })}
                         </tbody>
                     </table>
+                    {logs.length === 0 && <p className="text-center py-8 text-slate-400 italic">No records found for the selected period.</p>}
                 </section>
             </div>
 
             <footer className="mt-20 pt-10 border-t border-slate-100 text-center text-slate-400 text-[10px] uppercase tracking-[0.2em]">
-                This is a system generated document. End of Report.
+                This is a secure business document generated by Annachi Business Manager.
             </footer>
         </div>
     );
 };
 
 const SettingsPage: React.FC<SettingsPageProps> = ({ onLogout }) => {
+  const { t } = useTranslation();
   const [isSyncing, setIsSyncing] = useState(false);
   const [isDriveConnected, setIsDriveConnected] = useState(() => localStorage.getItem('ss_drive_active') === 'true');
   const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
+  const [reportPeriod, setReportPeriod] = useState<ReportPeriod>('MONTHLY');
   const user = JSON.parse(localStorage.getItem('ss_user') || '{}');
 
   const handleConnectDrive = () => {
@@ -178,7 +209,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onLogout }) => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `smartstock_backup_${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `annachi_backup_${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -209,7 +240,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onLogout }) => {
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in slide-in-from-bottom-4 duration-500 pb-20">
       <div className="no-print">
-        <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Cloud & Sync</h1>
+        <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">{t('settings')}</h1>
         <p className="text-slate-500 dark:text-slate-400 mt-2 text-lg">Manage your business profile and cloud data availability.</p>
       </div>
 
@@ -223,7 +254,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onLogout }) => {
       )}
 
       {/* User Card */}
-      <div className="no-print bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 flex items-center justify-between">
+      <div className="no-print bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 flex items-center justify-between shadow-sm">
         <div className="flex items-center space-x-4">
           <div className="w-16 h-16 bg-orange-100 text-orange-600 rounded-3xl flex items-center justify-center font-bold text-2xl">
             {user.name?.charAt(0)}
@@ -238,7 +269,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onLogout }) => {
           className="p-3 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-2xl transition-all flex items-center space-x-2 font-bold text-sm"
         >
           <LogOut size={20} />
-          <span className="hidden md:inline">Sign Out</span>
+          <span className="hidden md:inline">{t('logout')}</span>
         </button>
       </div>
 
@@ -297,18 +328,40 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onLogout }) => {
           <div className="w-14 h-14 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mb-6">
             <Database size={32} />
           </div>
-          <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Manual Control</h3>
-          <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-8">
-            Export your entire business database as a printable PDF report for offline records or accounting.
+          <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{t('confirm').replace('Confirm', 'Manual Control')}</h3>
+          <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-6">
+            Generate and export custom business reports. Choose a period and export as a professional PDF.
           </p>
-          <div className="space-y-3">
+          
+          <div className="space-y-5">
+            {/* Period Selector */}
+            <div>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Report Detail Level</label>
+                <div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-xl border dark:border-slate-700">
+                    {(['WEEKLY', 'MONTHLY', 'YEARLY', 'ALL'] as ReportPeriod[]).map(p => (
+                        <button 
+                            key={p}
+                            onClick={() => setReportPeriod(p)}
+                            className={`flex-1 py-1.5 rounded-lg text-[10px] font-black tracking-tighter uppercase transition-all ${
+                                reportPeriod === p 
+                                    ? 'bg-orange-600 text-white shadow-sm' 
+                                    : 'text-slate-400 hover:text-slate-600'
+                            }`}
+                        >
+                            {p === 'ALL' ? 'Full' : p.slice(0,3)}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
             <button 
               onClick={handleExportPDF}
               className="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold flex items-center justify-center space-x-2 hover:bg-orange-700 transition-all shadow-lg shadow-orange-100 dark:shadow-none"
             >
               <FileText size={20} />
-              <span>Export as PDF Report</span>
+              <span>Export {reportPeriod} PDF</span>
             </button>
+            
             <div className="grid grid-cols-2 gap-3">
                 <button 
                     onClick={handleExportJSON}
@@ -328,7 +381,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onLogout }) => {
         </div>
       </div>
 
-      <div className="no-print bg-orange-50 dark:bg-orange-950/20 p-8 rounded-[2.5rem] border border-orange-100 dark:border-orange-900/50">
+      <div className="no-print bg-orange-50 dark:bg-orange-950/20 p-8 rounded-[2.5rem] border border-orange-100 dark:border-orange-900/50 shadow-inner">
         <div className="flex items-start space-x-4">
           <div className="p-3 bg-orange-100 dark:bg-orange-900 rounded-xl text-orange-600">
             <ShieldCheck size={24} />
@@ -336,15 +389,15 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onLogout }) => {
           <div>
             <h4 className="font-bold text-orange-900 dark:text-orange-400 text-lg">Data Sovereignty</h4>
             <p className="text-orange-700 dark:text-orange-300 text-sm mt-1 leading-relaxed">
-              SmartStock Pro uses client-side encryption. When connected to Google Drive, we only access a dedicated folder for your backups. 
-              Your customers' sensitive data never touches our servers.
+              Annachi Pro uses client-side encryption. When connected to Google Drive, we only access a dedicated folder for your backups. 
+              Your customers' sensitive data never touches external servers.
             </p>
           </div>
         </div>
       </div>
 
       {/* Hidden Printable Area */}
-      <PrintableReport />
+      <PrintableReport period={reportPeriod} />
     </div>
   );
 };
