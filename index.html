@@ -13,52 +13,47 @@
         body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease; }
         .tamil-font { font-family: 'Arima', cursive; }
         
-        /* Reset and Force Visibility */
-        input, select, textarea {
+        /* High Contrast Inputs for Accessibility */
+        input:not([type="checkbox"]):not([type="radio"]), 
+        select, 
+        textarea {
             background-color: #f8fafc !important;
             color: #0f172a !important;
-            -webkit-text-fill-color: #0f172a !important;
             opacity: 1 !important;
         }
 
         /* Dark mode overrides */
         .dark body { background-color: #020617; }
         
-        .dark input, .dark select, .dark textarea {
+        .dark input:not([type="checkbox"]):not([type="radio"]), 
+        .dark select, 
+        .dark textarea {
             background-color: #1e293b !important;
             color: #f1f5f9 !important;
-            -webkit-text-fill-color: #f1f5f9 !important;
             border-color: #334155 !important;
         }
 
         .dark input:focus, .dark select:focus, .dark textarea:focus {
-            background-color: #1e293b !important;
             outline: 2px solid #f97316 !important;
             border-color: transparent !important;
         }
 
         input:focus, select:focus, textarea:focus {
-            background-color: #ffffff !important;
             outline: 2px solid #3b82f6 !important;
         }
 
         ::placeholder {
             color: #94a3b8 !important;
-            -webkit-text-fill-color: #94a3b8 !important;
             opacity: 0.6;
         }
 
-        /* Prevent auto-fill background/color issues */
-        input:-webkit-autofill,
-        input:-webkit-autofill:hover, 
-        input:-webkit-autofill:focus {
+        /* Support for Browser Autofill Visibility */
+        input:-webkit-autofill {
             -webkit-box-shadow: 0 0 0px 1000px white inset !important;
             -webkit-text-fill-color: #0f172a !important;
         }
 
-        .dark input:-webkit-autofill,
-        .dark input:-webkit-autofill:hover, 
-        .dark input:-webkit-autofill:focus {
+        .dark input:-webkit-autofill {
             -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important;
             -webkit-text-fill-color: #f1f5f9 !important;
         }

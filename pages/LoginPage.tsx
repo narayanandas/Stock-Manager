@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
-import { ShieldCheck, CheckCircle2, AlertCircle, HelpCircle, Mail, Key, Cloud } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Mail, Cloud, Loader2, AlertCircle } from 'lucide-react';
 
 const GOOGLE_CLIENT_ID = "127960470889-0hee1q04h5cgpuorh5rp8q5frk2gji7m.apps.googleusercontent.com";
 
@@ -23,44 +23,73 @@ const parseJwt = (token: string) => {
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const [step, setStep] = useState<'form' | 'loading' | 'success'>('form');
   const [email, setEmail] = useState('');
-  const [tempUser, setTempUser] = useState<any>(null);
+  const [isGoogleReady, setIsGoogleReady] = useState(false);
+  const buttonRendered = useRef(false);
 
   useEffect(() => {
-    const google = (window as any).google;
-    if (google?.accounts?.id) {
-      google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: (response: any) => {
-          const userData = parseJwt(response.credential);
-          setTempUser(userData);
-          
-          // Now get token for Drive access
-          const tokenClient = google.accounts.oauth2.initTokenClient({
-            client_id: GOOGLE_CLIENT_ID,
-            scope: 'https://www.googleapis.com/auth/drive.file',
-            callback: (tokenResponse: any) => {
-              if (tokenResponse.error !== undefined) throw (tokenResponse);
-              
-              setStep('loading');
-              setTimeout(() => {
-                setStep('success');
-                setTimeout(() => {
-                  onLogin({ 
-                    name: userData?.name || "User", 
-                    email: userData?.email || "user@gmail.com",
-                    avatar: userData?.picture,
-                    accessToken: tokenResponse.access_token
-                  });
-                }, 800);
-              }, 1000);
-            },
-          });
-          tokenClient.requestAccessToken();
-        }
-      });
+    let pollCount = 0;
+    const maxPolls = 20; // 10 seconds total
 
-      const btn = document.getElementById("googleBtn");
-      if (btn) google.accounts.id.renderButton(btn, { theme: "filled_blue", size: "large", width: 320, shape: "pill" });
+    const initGoogle = () => {
+      const google = (window as any).google;
+      if (google?.accounts?.id && !buttonRendered.current) {
+        setIsGoogleReady(true);
+        google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: (response: any) => {
+            const userData = parseJwt(response.credential);
+            
+            // Get token for Drive access
+            const tokenClient = google.accounts.oauth2.initTokenClient({
+              client_id: GOOGLE_CLIENT_ID,
+              scope: 'https://www.googleapis.com/auth/drive.file',
+              callback: (tokenResponse: any) => {
+                if (tokenResponse.error !== undefined) throw (tokenResponse);
+                
+                setStep('loading');
+                setTimeout(() => {
+                  setStep('success');
+                  setTimeout(() => {
+                    onLogin({ 
+                      name: userData?.name || "User", 
+                      email: userData?.email || "user@gmail.com",
+                      avatar: userData?.picture,
+                      accessToken: tokenResponse.access_token
+                    });
+                  }, 800);
+                }, 1000);
+              },
+            });
+            tokenClient.requestAccessToken();
+          }
+        });
+
+        const btn = document.getElementById("googleBtn");
+        if (btn) {
+          google.accounts.id.renderButton(btn, { 
+            theme: "filled_blue", 
+            size: "large", 
+            width: 320, 
+            shape: "pill",
+            text: "signin_with" 
+          });
+          buttonRendered.current = true;
+        }
+        return true;
+      }
+      return false;
+    };
+
+    // Try immediately
+    if (!initGoogle()) {
+      // If not ready, poll
+      const interval = setInterval(() => {
+        pollCount++;
+        if (initGoogle() || pollCount >= maxPolls) {
+          clearInterval(interval);
+        }
+      }, 500);
+      return () => clearInterval(interval);
     }
   }, [onLogin]);
 
@@ -80,7 +109,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
       <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-[3rem] shadow-2xl overflow-hidden border dark:border-slate-800">
         <div className="bg-orange-600 p-10 text-white text-center">
           <div className="w-28 h-28 bg-white rounded-full mx-auto flex items-center justify-center mb-6 shadow-2xl border-4 border-orange-400 p-1 overflow-hidden">
-            <img src={LOGO_URL} alt="Logo" className="w-full h-full object-cover" />
+            <img src={LOGO_URL} alt="Logo" className="w-full h-full object-cover" onError={(e) => {
+               // Fallback if logo.png is missing
+               (e.target as HTMLImageElement).src = "https://ui-avatars.com/api/?name=Annachi&background=ea580c&color=fff";
+            }} />
           </div>
           <h1 className="text-4xl font-black tracking-tighter">Annachi</h1>
           <p className="text-orange-100 text-[10px] mt-2 font-black uppercase tracking-[0.3em]">Cloud Trade Manager</p>
@@ -91,13 +123,22 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
             <div className="space-y-8">
               <div className="text-center">
                 <h2 className="text-xl font-black text-slate-800 dark:text-white">Business Access</h2>
-                <p className="text-slate-500 text-xs mt-1">Sign in to sync across your devices</p>
+                <p className="text-slate-500 text-xs mt-1 font-semibold">Sign in to sync across your devices</p>
               </div>
 
               <div className="flex flex-col items-center space-y-6">
-                <div id="googleBtn" className="w-full flex justify-center"></div>
+                {/* Google Button Container with fixed height to prevent flicker */}
+                <div className="min-h-[44px] w-full flex flex-col items-center justify-center">
+                  {!isGoogleReady && (
+                    <div className="flex items-center space-x-2 text-slate-400 text-xs animate-pulse">
+                      <Loader2 size={16} className="animate-spin" />
+                      <span>Initializing Google Sign-In...</span>
+                    </div>
+                  )}
+                  <div id="googleBtn" className={`w-full flex justify-center transition-opacity duration-500 ${isGoogleReady ? 'opacity-100' : 'opacity-0'}`}></div>
+                </div>
 
-                <div className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-4 py-2 rounded-xl text-[10px] font-black uppercase">
+                <div className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider">
                   <Cloud size={14} />
                   <span>Enables Cross-Device Sync</span>
                 </div>
@@ -111,16 +152,33 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                 <form onSubmit={handleManualLogin} className="w-full space-y-4">
                    <div className="relative">
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                      <input type="email" required placeholder="Business Email" className="w-full pl-12 pr-4 py-4 rounded-2xl border bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-white font-bold" value={email} onChange={e => setEmail(e.target.value)} />
+                      <input 
+                        type="email" 
+                        required 
+                        placeholder="Business Email" 
+                        className="w-full pl-12 pr-4 py-4 rounded-2xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-bold focus:ring-2 focus:ring-orange-500 outline-none transition-all" 
+                        value={email} 
+                        onChange={e => setEmail(e.target.value)} 
+                      />
                    </div>
-                   <button type="submit" className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-4 rounded-2xl font-black uppercase text-xs">Email Login (Local Only)</button>
+                   <button type="submit" className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-4 rounded-2xl font-black uppercase text-xs hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors">
+                     Email Login (Local Only)
+                   </button>
                 </form>
+                
+                <div className="flex items-center space-x-1 text-[10px] text-slate-400 font-bold uppercase">
+                  <AlertCircle size={10} />
+                  <span>No account needed for local mode</span>
+                </div>
               </div>
             </div>
           ) : (
             <div className="py-20 flex flex-col items-center space-y-6 text-center">
                <div className="w-20 h-20 border-4 border-orange-600 border-t-transparent rounded-full animate-spin"></div>
-               <h3 className="text-2xl font-black text-slate-800 dark:text-white">Connecting Cloud...</h3>
+               <h3 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">
+                 {step === 'loading' ? 'Authenticating...' : 'Welcome Back!'}
+               </h3>
+               <p className="text-slate-500 dark:text-slate-400 text-sm font-semibold">Preparing your business dashboard</p>
             </div>
           )}
         </div>
