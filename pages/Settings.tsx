@@ -14,7 +14,8 @@ import {
   LogOut,
   FileText,
   FileJson,
-  Calendar
+  Calendar,
+  Lock
 } from 'lucide-react';
 import { useTranslation } from '../App';
 
@@ -95,30 +96,6 @@ const PrintableReport: React.FC<{ period: ReportPeriod }> = ({ period }) => {
         return acc + (getStockBalance(p.id) * p.costPrice);
     }, 0);
 
-    // Low Stock Alerts
-    const lowStockAlerts = products.filter(p => getStockBalance(p.id) < p.minStock);
-
-    // Best Sellers
-    const productStats = salesLogs.reduce((acc, log) => {
-        const p = products.find(prod => prod.id === log.productId);
-        const name = p?.name || 'Unknown';
-        if (!acc[name]) acc[name] = { qty: 0, revenue: 0 };
-        acc[name].qty += log.quantity;
-        acc[name].revenue += log.quantity * (p?.unitPrice || 0);
-        return acc;
-    }, {} as Record<string, { qty: number, revenue: number }>);
-
-    const topProducts = Object.entries(productStats)
-        .sort((a, b) => b[1].revenue - a[1].revenue)
-        .slice(0, 15);
-
-    // Pending Receivables
-    const pendingLogs = salesLogs.filter(l => l.paymentStatus === 'PENDING');
-    const totalPendingValue = pendingLogs.reduce((acc, log) => {
-        const p = products.find(prod => prod.id === log.productId);
-        return acc + (log.quantity * (p?.unitPrice || 0));
-    }, 0);
-
     return (
         <div className="print-only p-10 bg-white text-black min-h-screen">
             <div className="flex justify-between items-start border-b-4 border-orange-600 pb-8 mb-8">
@@ -161,7 +138,6 @@ const PrintableReport: React.FC<{ period: ReportPeriod }> = ({ period }) => {
                         </div>
                     </div>
                 </section>
-                {/* Simplified for brevity */}
             </div>
         </div>
     );
@@ -188,34 +164,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onLogout }) => {
 
   const handleExportPDF = () => {
     window.print();
-  };
-
-  const handleExportJSON = () => {
-    const data = db.utils.exportFullDatabase();
-    const blob = new Blob([data], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `annachi_backup_${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
-  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const content = e.target?.result as string;
-      const success = db.utils.importFullDatabase(content);
-      if (success) {
-        window.location.reload();
-      }
-    };
-    reader.readAsText(file);
   };
 
   return (
@@ -245,7 +193,13 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onLogout }) => {
             )}
           </div>
           <div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white">{user.name}</h3>
+            <div className="flex items-center space-x-2">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">{user.name}</h3>
+                <div className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-lg flex items-center space-x-1 border dark:border-slate-700">
+                    <Lock size={10} className="text-orange-500" />
+                    <span className="text-[9px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-widest">Isolated Storage</span>
+                </div>
+            </div>
             <p className="text-slate-500 dark:text-slate-400 font-medium">{user.email}</p>
           </div>
         </div>
@@ -345,10 +299,10 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onLogout }) => {
             <ShieldCheck size={24} />
           </div>
           <div>
-            <h4 className="font-bold text-orange-900 dark:text-orange-400 text-lg">Cloud Privacy & Data Hub</h4>
+            <h4 className="font-bold text-orange-900 dark:text-orange-400 text-lg">Multi-Account Isolation</h4>
             <p className="text-orange-700 dark:text-orange-300 text-sm mt-1 leading-relaxed">
-              Annachi Pro manages your trade data with full sovereignty. Exporting to PDF generates a period-specific audit log which captures 
-              Dashboard stats and Sales performance for your chosen timeline.
+              Data is now isolated per email. Currently managing local records for: <b>{user.email}</b>. 
+              Switching accounts will load a separate database specific to that login.
             </p>
           </div>
         </div>
