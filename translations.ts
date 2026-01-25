@@ -61,7 +61,12 @@ export const translations = {
     daily: 'DAILY',
     weekly: 'WEEKLY',
     monthly: 'MONTHLY',
-    yearly: 'YEARLY'
+    yearly: 'YEARLY',
+    lowStock: 'Low Stock Alerts',
+    receivables: 'Pending Payments',
+    recentActivity: 'Recent Activity',
+    noData: 'No data available',
+    viewAll: 'View All'
   },
   ta: {
     dashboard: 'முகப்பு',
@@ -122,6 +127,11 @@ export const translations = {
     daily: 'தினசரி',
     weekly: 'வாராந்திர',
     monthly: 'மாதாந்திர',
-    yearly: 'வருடாந்திர'
+    yearly: 'வருடாந்திர',
+    lowStock: 'குறைந்த சரக்கு எச்சரிக்கை',
+    receivables: 'நிலுவையில் உள்ள பணம்',
+    recentActivity: 'சமீபத்திய நடவடிக்கைகள்',
+    noData: 'தகவல் இல்லை',
+    viewAll: 'அனைத்தையும் காண்க'
   }
 };

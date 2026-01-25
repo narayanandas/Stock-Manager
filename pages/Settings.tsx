@@ -33,6 +33,7 @@ const formatINR = (val: number) => {
 type ReportPeriod = 'WEEKLY' | 'MONTHLY' | 'YEARLY' | 'ALL';
 
 const PrintableReport: React.FC<{ period: ReportPeriod }> = ({ period }) => {
+    const { t } = useTranslation();
     const customers = db.customers.getAll();
     const products = db.products.getAll();
     const allLogs = db.logs.getAll();
@@ -59,10 +60,23 @@ const PrintableReport: React.FC<{ period: ReportPeriod }> = ({ period }) => {
 
     const logs = getFilteredLogs();
     const salesLogs = logs.filter(l => l.type === 'OUT');
+    
+    // Revenue calculation
     const totalRevenue = salesLogs.reduce((acc, log) => {
         const p = products.find(prod => prod.id === log.productId);
         return acc + (log.quantity * (p?.unitPrice || 0));
     }, 0);
+
+    // COGS and Profit calculation
+    const totalCOGS = salesLogs.reduce((acc, log) => {
+        const p = products.find(prod => prod.id === log.productId);
+        return acc + (log.quantity * (p?.costPrice || 0));
+    }, 0);
+    const estimatedProfit = totalRevenue - totalCOGS;
+
+    // Active Customers in this period
+    const activeCustomerIds = new Set(logs.filter(l => l.customerId).map(l => l.customerId));
+    const activeCustomersCount = activeCustomerIds.size;
 
     const getStockBalance = (productId: string) => {
         return allLogs.reduce((acc, log) => {
@@ -70,6 +84,14 @@ const PrintableReport: React.FC<{ period: ReportPeriod }> = ({ period }) => {
             return log.type === 'IN' ? acc + log.quantity : acc - log.quantity;
         }, 0);
     };
+
+    // Total Inventory Value
+    const totalInventoryValue = products.reduce((acc, p) => {
+        return acc + (getStockBalance(p.id) * p.costPrice);
+    }, 0);
+
+    // Low Stock Alerts
+    const lowStockAlerts = products.filter(p => getStockBalance(p.id) < p.minStock);
 
     return (
         <div className="print-only p-10 bg-white text-black min-h-screen">
@@ -90,30 +112,51 @@ const PrintableReport: React.FC<{ period: ReportPeriod }> = ({ period }) => {
                 </div>
             </div>
 
-            <div className="space-y-12">
-                {/* Financial Period Summary */}
-                <section className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                    <h2 className="text-lg font-bold mb-4 text-slate-800">Financial Summary ({period})</h2>
-                    <div className="grid grid-cols-3 gap-8">
-                        <div>
-                            <p className="text-xs font-bold text-slate-400 uppercase">Total Revenue</p>
-                            <p className="text-2xl font-black text-emerald-600">{formatINR(totalRevenue)}</p>
+            <div className="space-y-10">
+                {/* Executive Dashboard Summary (The requested Dashboard details) */}
+                <section>
+                    <h2 className="text-xl font-bold border-b border-slate-200 mb-6 pb-2 text-slate-800 uppercase tracking-tight">Executive Summary</h2>
+                    <div className="grid grid-cols-4 gap-4">
+                        <div className="p-4 bg-slate-50 border rounded-xl">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Total Revenue</p>
+                            <p className="text-xl font-black text-slate-900">{formatINR(totalRevenue)}</p>
                         </div>
-                        <div>
-                            <p className="text-xs font-bold text-slate-400 uppercase">Transactions</p>
-                            <p className="text-2xl font-black text-slate-800">{logs.length}</p>
+                        <div className="p-4 bg-slate-50 border rounded-xl">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Est. Profit</p>
+                            <p className="text-xl font-black text-emerald-600">{formatINR(estimatedProfit)}</p>
                         </div>
-                        <div>
-                            <p className="text-xs font-bold text-slate-400 uppercase">Avg. Ticket Size</p>
-                            <p className="text-2xl font-black text-slate-800">{logs.length ? formatINR(totalRevenue / logs.length) : '₹0'}</p>
+                        <div className="p-4 bg-slate-50 border rounded-xl">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Inv. Asset Value</p>
+                            <p className="text-xl font-black text-indigo-600">{formatINR(totalInventoryValue)}</p>
+                        </div>
+                        <div className="p-4 bg-slate-50 border rounded-xl">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Active Accounts</p>
+                            <p className="text-xl font-black text-slate-900">{activeCustomersCount}</p>
                         </div>
                     </div>
                 </section>
 
-                {/* Inventory Summary */}
+                {/* Low Stock Alerts (from Dashboard) */}
+                {lowStockAlerts.length > 0 && (
+                    <section className="bg-red-50 border border-red-100 p-6 rounded-2xl">
+                        <h2 className="text-red-600 font-black text-sm uppercase tracking-widest mb-3 flex items-center">
+                           Critical Inventory Alerts
+                        </h2>
+                        <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
+                            {lowStockAlerts.map(p => (
+                                <div key={p.id} className="flex justify-between border-b border-red-100 pb-1">
+                                    <span className="font-medium text-red-900">{p.name}</span>
+                                    <span className="font-black text-red-600">Current: {getStockBalance(p.id)} (Min: {p.minStock})</span>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {/* Detailed Inventory List */}
                 <section>
-                    <h2 className="text-xl font-bold border-b border-slate-200 mb-4 pb-2 text-slate-800">1. Current Inventory Status</h2>
-                    <table className="w-full text-sm">
+                    <h2 className="text-xl font-bold border-b border-slate-200 mb-4 pb-2 text-slate-800 uppercase tracking-tight">1. Inventory Status</h2>
+                    <table className="w-full text-xs">
                         <thead className="bg-slate-50">
                             <tr>
                                 <th className="text-left py-3 px-4 border">Product Name</th>
@@ -121,34 +164,45 @@ const PrintableReport: React.FC<{ period: ReportPeriod }> = ({ period }) => {
                                 <th className="text-right py-3 px-4 border">Cost Price</th>
                                 <th className="text-right py-3 px-4 border">Sale Price</th>
                                 <th className="text-center py-3 px-4 border">On Hand</th>
+                                <th className="text-right py-3 px-4 border">Asset Value</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {products.map(p => (
-                                <tr key={p.id}>
-                                    <td className="py-2 px-4 border font-medium">{p.name}</td>
-                                    <td className="py-2 px-4 border">{p.category}</td>
-                                    <td className="py-2 px-4 border text-right">{formatINR(p.costPrice)}</td>
-                                    <td className="py-2 px-4 border text-right">{formatINR(p.unitPrice)}</td>
-                                    <td className="py-2 px-4 border text-center font-bold">{getStockBalance(p.id)}</td>
-                                </tr>
-                            ))}
+                            {products.map(p => {
+                                const bal = getStockBalance(p.id);
+                                return (
+                                    <tr key={p.id}>
+                                        <td className="py-2 px-4 border font-medium">{p.name}</td>
+                                        <td className="py-2 px-4 border text-slate-500 uppercase text-[9px]">{p.category}</td>
+                                        <td className="py-2 px-4 border text-right">{formatINR(p.costPrice)}</td>
+                                        <td className="py-2 px-4 border text-right">{formatINR(p.unitPrice)}</td>
+                                        <td className="py-2 px-4 border text-center font-bold">{bal}</td>
+                                        <td className="py-2 px-4 border text-right font-bold">{formatINR(bal * p.costPrice)}</td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
+                        <tfoot className="bg-slate-50 font-black">
+                            <tr>
+                                <td colSpan={5} className="py-3 px-4 border text-right">Total Portfolio Value:</td>
+                                <td className="py-3 px-4 border text-right text-indigo-700">{formatINR(totalInventoryValue)}</td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </section>
 
-                {/* Recent Logs */}
+                {/* Transaction Logs */}
                 <section className="break-before-page">
-                    <h2 className="text-xl font-bold border-b border-slate-200 mb-4 pb-2 text-slate-800">2. Transaction Detail ({period})</h2>
-                    <table className="w-full text-xs">
+                    <h2 className="text-xl font-bold border-b border-slate-200 mb-4 pb-2 text-slate-800 uppercase tracking-tight">2. Detailed Activity Log ({period})</h2>
+                    <table className="w-full text-[10px]">
                         <thead className="bg-slate-50">
                             <tr>
                                 <th className="text-left py-2 px-3 border">Date</th>
                                 <th className="text-left py-2 px-3 border">Type</th>
                                 <th className="text-left py-2 px-3 border">Product</th>
-                                <th className="text-left py-2 px-3 border">Customer</th>
+                                <th className="text-left py-2 px-3 border">Customer/Supplier</th>
                                 <th className="text-right py-2 px-3 border">Qty</th>
-                                <th className="text-right py-2 px-3 border">Value</th>
+                                <th className="text-right py-2 px-3 border">Revenue</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -159,22 +213,28 @@ const PrintableReport: React.FC<{ period: ReportPeriod }> = ({ period }) => {
                                 return (
                                     <tr key={log.id}>
                                         <td className="py-1 px-3 border">{new Date(log.date).toLocaleDateString()}</td>
-                                        <td className={`py-1 px-3 border font-bold ${log.type === 'IN' ? 'text-blue-600' : 'text-emerald-600'}`}>{log.type}</td>
-                                        <td className="py-1 px-3 border">{p?.name}</td>
-                                        <td className="py-1 px-3 border">{c?.name || 'Inbound Supply'}</td>
+                                        <td className={`py-1 px-3 border font-black ${log.type === 'IN' ? 'text-blue-600' : 'text-emerald-600'}`}>{log.type}</td>
+                                        <td className="py-1 px-3 border font-medium">{p?.name}</td>
+                                        <td className="py-1 px-3 border">{c?.name || 'Internal Supply'}</td>
                                         <td className="py-1 px-3 border text-right font-mono">{log.type === 'IN' ? '+' : '-'}{log.quantity}</td>
                                         <td className="py-1 px-3 border text-right font-bold">{log.type === 'OUT' ? formatINR(val) : '-'}</td>
                                     </tr>
                                 );
                             })}
                         </tbody>
+                        <tfoot className="bg-slate-50 font-black">
+                            <tr>
+                                <td colSpan={5} className="py-3 px-4 border text-right uppercase">Period Total Revenue:</td>
+                                <td className="py-3 px-4 border text-right text-emerald-700">{formatINR(totalRevenue)}</td>
+                            </tr>
+                        </tfoot>
                     </table>
-                    {logs.length === 0 && <p className="text-center py-8 text-slate-400 italic">No records found for the selected period.</p>}
+                    {logs.length === 0 && <p className="text-center py-12 text-slate-400 italic">No trade activity recorded for this period.</p>}
                 </section>
             </div>
 
-            <footer className="mt-20 pt-10 border-t border-slate-100 text-center text-slate-400 text-[10px] uppercase tracking-[0.2em]">
-                This is a secure business document generated by Annachi Business Manager.
+            <footer className="mt-20 pt-10 border-t border-slate-100 text-center text-slate-400 text-[9px] uppercase tracking-[0.3em]">
+                Verified Digital Report • Annachi Pro Business Management • {new Date().getFullYear()}
             </footer>
         </div>
     );

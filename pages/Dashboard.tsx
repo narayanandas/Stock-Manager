@@ -10,10 +10,15 @@ import {
   Wallet, 
   RefreshCw,
   TrendingUp,
-  Banknote
+  Banknote,
+  AlertTriangle,
+  History,
+  CreditCard,
+  ChevronRight
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { useTranslation } from '../App';
+import { Link } from 'react-router-dom';
 
 const formatINR = (val: number) => {
   return new Intl.NumberFormat('en-IN', {
@@ -28,15 +33,15 @@ const StatCard = ({ title, value, icon: Icon, color, subtitle, currency, extra }
     <div className={`p-3 rounded-xl ${color} text-white`}>
       <Icon size={24} />
     </div>
-    <div className="flex-1">
-      <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">{title}</p>
-      <h3 className="text-2xl font-bold text-slate-800 dark:text-white mt-1">
+    <div className="flex-1 min-w-0">
+      <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider truncate">{title}</p>
+      <h3 className="text-2xl font-bold text-slate-800 dark:text-white mt-1 truncate">
         {currency ? formatINR(value) : value}
       </h3>
       {(subtitle || extra) && (
         <div className="flex items-center justify-between mt-1">
-          {subtitle && <p className="text-xs text-slate-400 dark:text-slate-500">{subtitle}</p>}
-          {extra && <p className="text-[10px] font-black text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded uppercase tracking-tighter">{extra}</p>}
+          {subtitle && <p className="text-xs text-slate-400 dark:text-slate-500 truncate">{subtitle}</p>}
+          {extra && <p className="text-[10px] font-black text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded uppercase tracking-tighter shrink-0">{extra}</p>}
         </div>
       )}
     </div>
@@ -44,8 +49,7 @@ const StatCard = ({ title, value, icon: Icon, color, subtitle, currency, extra }
 );
 
 const Dashboard: React.FC = () => {
-  // Use darkMode from translation context to handle chart colors
-  const { t, lang, darkMode } = useTranslation();
+  const { t, darkMode } = useTranslation();
   const [data, setData] = useState<{
     customers: Customer[],
     products: Product[],
@@ -62,6 +66,13 @@ const Dashboard: React.FC = () => {
       products: db.products.getAll(),
       logs: db.logs.getAll()
     });
+  };
+
+  const getProductBalance = (productId: string) => {
+    return data.logs.reduce((acc, log) => {
+      if (log.productId !== productId) return acc;
+      return log.type === 'IN' ? acc + log.quantity : acc - log.quantity;
+    }, 0);
   };
 
   const stats = {
@@ -82,20 +93,23 @@ const Dashboard: React.FC = () => {
   const balance = stats.stockIn - stats.stockOut;
   
   const totalUnits = data.products.reduce((acc, p) => {
-    const pBalance = data.logs.reduce((b, l) => {
-       if (l.productId === p.id) return l.type === 'IN' ? b + l.quantity : b - l.quantity;
-       return b;
-    }, 0);
-    return acc + pBalance;
+    return acc + getProductBalance(p.id);
   }, 0);
 
   const invValue = data.products.reduce((acc, p) => {
-    const pBalance = data.logs.reduce((b, l) => {
-       if (l.productId === p.id) return l.type === 'IN' ? b + l.quantity : b - l.quantity;
-       return b;
-    }, 0);
-    return acc + (pBalance * p.costPrice);
+    return acc + (getProductBalance(p.id) * p.costPrice);
   }, 0);
+
+  // Low Stock Items
+  const lowStockItems = data.products
+    .map(p => ({ ...p, balance: getProductBalance(p.id) }))
+    .filter(p => p.balance < p.minStock)
+    .slice(0, 5);
+
+  // Pending Payments
+  const pendingPayments = data.logs
+    .filter(l => l.type === 'OUT' && l.paymentStatus === 'PENDING')
+    .slice(0, 5);
 
   const chartData = [
     { name: t('stockIn'), value: stats.stockIn },
@@ -104,7 +118,7 @@ const Dashboard: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500 pb-16">
+    <div className="space-y-8 animate-in fade-in duration-500 pb-20">
       <header className="flex justify-between items-end">
         <div>
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{t('businessIntel')}</h1>
@@ -120,7 +134,7 @@ const Dashboard: React.FC = () => {
       </header>
 
       {/* Financial Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard 
           title={t('inventoryValue')} 
           value={invValue} 
@@ -134,54 +148,164 @@ const Dashboard: React.FC = () => {
         <StatCard title={t('activeCustomers')} value={stats.totalCustomers} icon={Users} color="bg-blue-600" />
       </div>
 
-      <div className="grid grid-cols-1 gap-8">
-        <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="font-bold text-slate-800 dark:text-white flex items-center">
-              <TrendingUp size={18} className="mr-2 text-orange-500" />
-              Inventory Analysis
-            </h3>
-          </div>
-          <div className="h-80 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#475569" opacity={0.3} />
-                <XAxis 
-                  dataKey="name" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{fill: darkMode ? '#ffffff' : '#475569', fontSize: 12, fontWeight: 'bold'}} 
-                />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{fill: darkMode ? '#ffffff' : '#475569', fontSize: 12, fontWeight: 'bold'}} 
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    borderRadius: '16px', 
-                    border: 'none', 
-                    boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)', 
-                    backgroundColor: '#1e293b', 
-                  }}
-                  itemStyle={{ color: '#ffffff', fontWeight: 'bold' }}
-                  labelStyle={{ color: '#ffffff', fontWeight: 'black', marginBottom: '4px' }}
-                  cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                />
-                <Bar dataKey="value" radius={[8, 8, 0, 0]} barSize={60}>
-                  <LabelList 
-                    dataKey="value" 
-                    position="center" 
-                    fill="#ffffff" 
-                    fontWeight="black" 
-                    fontSize={16} 
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Chart Column */}
+        <div className="lg:col-span-2 space-y-8">
+          <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="font-bold text-slate-800 dark:text-white flex items-center">
+                <TrendingUp size={18} className="mr-2 text-orange-500" />
+                Inventory Analysis
+              </h3>
+            </div>
+            <div className="h-80 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#475569" opacity={0.3} />
+                  <XAxis 
+                    dataKey="name" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{fill: darkMode ? '#ffffff' : '#475569', fontSize: 12, fontWeight: 'bold'}} 
                   />
-                  {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={index === 0 ? '#f97316' : index === 1 ? '#10b981' : '#6366f1'} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{fill: darkMode ? '#ffffff' : '#475569', fontSize: 12, fontWeight: 'bold'}} 
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      borderRadius: '16px', 
+                      border: 'none', 
+                      boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)', 
+                      backgroundColor: '#1e293b', 
+                    }}
+                    itemStyle={{ color: '#ffffff', fontWeight: 'bold' }}
+                    labelStyle={{ color: '#ffffff', fontWeight: 'black', marginBottom: '4px' }}
+                    cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                  />
+                  <Bar dataKey="value" radius={[8, 8, 0, 0]} barSize={60}>
+                    <LabelList 
+                      dataKey="value" 
+                      position="center" 
+                      fill="#ffffff" 
+                      fontWeight="black" 
+                      fontSize={16} 
+                    />
+                    {chartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={index === 0 ? '#f97316' : index === 1 ? '#10b981' : '#6366f1'} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Recent Activity Section */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
+            <div className="p-6 border-b dark:border-slate-800 flex justify-between items-center">
+              <h3 className="font-bold text-slate-800 dark:text-white flex items-center">
+                <History size={18} className="mr-2 text-indigo-500" />
+                {t('recentActivity')}
+              </h3>
+              <Link to="/reports" className="text-xs font-bold text-orange-600 hover:underline uppercase tracking-widest">{t('viewAll')}</Link>
+            </div>
+            <div className="divide-y dark:divide-slate-800">
+              {data.logs.length === 0 ? (
+                <div className="p-12 text-center text-slate-400 italic text-sm">{t('noData')}</div>
+              ) : (
+                data.logs.slice().reverse().slice(0, 5).map(log => {
+                  const p = data.products.find(prod => prod.id === log.productId);
+                  const c = data.customers.find(cust => cust.id === log.customerId);
+                  return (
+                    <div key={log.id} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                      <div className="flex items-center space-x-3">
+                        <div className={`p-2 rounded-lg ${log.type === 'IN' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                          {log.type === 'IN' ? <ArrowDownLeft size={16} /> : <ArrowUpRight size={16} />}
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-slate-800 dark:text-white">{p?.name || 'Unknown'}</p>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase">
+                            {log.type === 'IN' ? t('stockIn') : t('stockOut')} • {c?.name || 'Supplier'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className={`text-sm font-black ${log.type === 'IN' ? 'text-blue-600' : 'text-emerald-600'}`}>
+                          {log.type === 'IN' ? '+' : '-'}{log.quantity}
+                        </p>
+                        <p className="text-[10px] text-slate-400">{new Date(log.date).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Sidebar Column: Low Stock & Pending Payments */}
+        <div className="space-y-8">
+          {/* Low Stock Alerts */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
+            <div className="p-6 border-b dark:border-slate-800 flex items-center justify-between bg-red-50/30 dark:bg-red-900/10">
+              <h3 className="font-bold text-red-600 dark:text-red-400 flex items-center text-sm">
+                <AlertTriangle size={16} className="mr-2" />
+                {t('lowStock')}
+              </h3>
+            </div>
+            <div className="divide-y dark:divide-slate-800">
+              {lowStockItems.length === 0 ? (
+                <div className="p-8 text-center text-slate-400 text-sm italic">{t('noData')}</div>
+              ) : (
+                lowStockItems.map(item => (
+                  <div key={item.id} className="p-4 flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-bold text-slate-800 dark:text-white">{item.name}</p>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase">{t('minStock')}: {item.minStock}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-black text-red-600">{item.balance}</p>
+                      <p className="text-[10px] text-slate-400 uppercase">{t('totalUnits')}</p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Pending Receivables */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
+            <div className="p-6 border-b dark:border-slate-800 flex items-center justify-between bg-amber-50/30 dark:bg-amber-900/10">
+              <h3 className="font-bold text-amber-600 dark:text-amber-400 flex items-center text-sm">
+                <CreditCard size={16} className="mr-2" />
+                {t('receivables')}
+              </h3>
+              <Link to="/payments" className="text-[10px] font-black text-amber-600 hover:underline uppercase tracking-tighter">{t('viewAll')}</Link>
+            </div>
+            <div className="divide-y dark:divide-slate-800">
+              {pendingPayments.length === 0 ? (
+                <div className="p-8 text-center text-slate-400 text-sm italic">{t('noData')}</div>
+              ) : (
+                pendingPayments.map(log => {
+                  const cust = data.customers.find(c => c.id === log.customerId);
+                  const prod = data.products.find(p => p.id === log.productId);
+                  const val = log.quantity * (prod?.unitPrice || 0);
+                  return (
+                    <div key={log.id} className="p-4 flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-bold text-slate-800 dark:text-white">{cust?.name || 'Walk-in'}</p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">{prod?.name}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-black text-slate-900 dark:text-white">{formatINR(val)}</p>
+                        <p className="text-[10px] text-amber-600 font-black uppercase tracking-tighter">{t('pending')}</p>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
           </div>
         </div>
       </div>
