@@ -10,35 +10,33 @@
     <!-- Google Identity Services SDK -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease; }
         .tamil-font { font-family: 'Arima', cursive; }
         
         /* Reset and Force Visibility */
         input, select, textarea {
-            background-color: #f8fafc !important; /* Default light bg */
-            color: #000000 !important; /* Force black text */
-            -webkit-text-fill-color: #000000 !important;
+            background-color: #f8fafc !important;
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
             opacity: 1 !important;
         }
 
-        /* Dark mode overrides - Force Dark Background and White Text */
+        /* Dark mode overrides */
         .dark body { background-color: #020617; }
         
         .dark input, .dark select, .dark textarea {
-            background-color: #1e293b !important; /* bg-slate-800 */
-            color: #ffffff !important; /* Force white text */
-            -webkit-text-fill-color: #ffffff !important;
+            background-color: #1e293b !important;
+            color: #f1f5f9 !important;
+            -webkit-text-fill-color: #f1f5f9 !important;
             border-color: #334155 !important;
         }
 
-        /* Prevent background change on focus in dark mode to avoid white-on-white */
         .dark input:focus, .dark select:focus, .dark textarea:focus {
             background-color: #1e293b !important;
             outline: 2px solid #f97316 !important;
             border-color: transparent !important;
         }
 
-        /* Light mode focus */
         input:focus, select:focus, textarea:focus {
             background-color: #ffffff !important;
             outline: 2px solid #3b82f6 !important;
@@ -50,7 +48,21 @@
             opacity: 0.6;
         }
 
-        /* Print Styles */
+        /* Prevent auto-fill background/color issues */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0px 1000px white inset !important;
+            -webkit-text-fill-color: #0f172a !important;
+        }
+
+        .dark input:-webkit-autofill,
+        .dark input:-webkit-autofill:hover, 
+        .dark input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important;
+            -webkit-text-fill-color: #f1f5f9 !important;
+        }
+
         @media print {
             .no-print { display: none !important; }
             .print-only { display: block !important; }
@@ -61,6 +73,11 @@
             @page { margin: 1cm; }
         }
         .print-only { display: none; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #334155; }
     </style>
 <script type="importmap">
 {

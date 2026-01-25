@@ -4,7 +4,6 @@ import { HashRouter, Routes, Route, Link, useLocation, Navigate } from 'react-ro
 import { 
   LayoutDashboard, 
   Users, 
-  Package, 
   ArrowUpRight, 
   ArrowDownLeft, 
   CreditCard, 
@@ -16,7 +15,8 @@ import {
   Settings,
   BarChart3,
   Languages,
-  Home
+  Home,
+  Cloud
 } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import CustomersPage from './pages/Customers';
@@ -29,8 +29,8 @@ import LoginPage from './pages/LoginPage';
 import ReportsPage from './pages/Reports';
 import { translations, Language } from './translations';
 
-// Logo Path Constant
-const LOGO_URL = "https://api.a0.dev/assets/image?text=Annachi%20friendly%20man%20logo%20mascot%20circular%20food%20groceries&aspect=1:1";
+// Local Logo Path
+const LOGO_URL = "./logo.png";
 
 const LanguageContext = createContext<{
   lang: Language;
@@ -78,7 +78,7 @@ const MobileTab = ({ to, icon: Icon, label, active }: { to: string, icon: any, l
 );
 
 const App: React.FC = () => {
-  const [user, setUser] = useState<{ name: string; email: string; avatar?: string } | null>(() => {
+  const [user, setUser] = useState<{ name: string; email: string; avatar?: string; accessToken?: string } | null>(() => {
     const saved = localStorage.getItem('ss_user');
     return saved ? JSON.parse(saved) : null;
   });
@@ -88,21 +88,14 @@ const App: React.FC = () => {
   const location = useLocation();
 
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    if (darkMode) document.documentElement.classList.add('dark');
+    else document.documentElement.classList.remove('dark');
     localStorage.setItem('ss_dark', String(darkMode));
   }, [darkMode]);
 
-  useEffect(() => {
-    localStorage.setItem('ss_lang', lang);
-  }, [lang]);
-
   const t = (key: keyof typeof translations.en) => translations[lang][key] || key;
 
-  const handleLogin = (userData: { name: string; email: string; avatar?: string }) => {
+  const handleLogin = (userData: { name: string; email: string; avatar?: string; accessToken?: string }) => {
     setUser(userData);
     localStorage.setItem('ss_user', JSON.stringify(userData));
   };
@@ -112,50 +105,43 @@ const App: React.FC = () => {
     localStorage.removeItem('ss_user');
   };
 
-  if (!user) {
-    return <LoginPage onLogin={handleLogin} />;
-  }
+  if (!user) return <LoginPage onLogin={handleLogin} />;
 
   const closeMenu = () => setIsMobileMenuOpen(false);
 
   return (
     <LanguageContext.Provider value={{ lang, setLang, t, darkMode }}>
-      <div className={`flex flex-col md:flex-row min-h-screen ${lang === 'ta' ? 'tamil-font' : ''} ${darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
+      <div className={`flex flex-col md:flex-row min-h-screen ${darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
         
         {/* Mobile Top Bar */}
         <div className="md:hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b dark:border-slate-800 px-4 py-3 flex justify-between items-center sticky top-0 z-50">
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-orange-500 shadow-sm">
-              <img src={LOGO_URL} alt="Annachi Logo" className="w-full h-full object-cover" />
+            <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-orange-500 bg-white">
+              <img src={LOGO_URL} alt="Logo" className="w-full h-full object-cover" />
             </div>
             <span className="font-black text-slate-800 dark:text-white text-lg tracking-tighter">Annachi</span>
           </Link>
           <div className="flex items-center space-x-1">
-             <button 
-                onClick={() => setDarkMode(!darkMode)}
-                className="p-2 text-slate-500 dark:text-slate-400"
-              >
+             <div className={`p-2 ${user.accessToken ? 'text-emerald-500' : 'text-slate-300'}`} title={user.accessToken ? 'Cloud Ready' : 'Local Only'}>
+                <Cloud size={18} />
+             </div>
+             <button onClick={() => setDarkMode(!darkMode)} className="p-2 text-slate-500">
                 {darkMode ? <Sun size={20} /> : <Moon size={20} />}
               </button>
-            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-slate-600 dark:text-slate-400">
+            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-slate-600">
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </div>
 
-        {/* Sidebar (Drawer on Mobile) */}
-        <aside className={`
-          fixed inset-0 z-[60] md:relative md:z-0
-          transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0
-          transition-transform duration-300 ease-in-out
-          w-72 bg-white dark:bg-slate-900 border-r dark:border-slate-800 flex flex-col
-        `}>
+        {/* Sidebar */}
+        <aside className={`fixed inset-0 z-[60] md:relative md:z-0 transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 w-72 bg-white dark:bg-slate-900 border-r dark:border-slate-800 flex flex-col`}>
           <div className="hidden md:flex items-center space-x-3 p-6 mb-4">
             <Link to="/" className="flex items-center space-x-3">
-              <div className="w-14 h-14 rounded-full overflow-hidden border-4 border-orange-500 shadow-xl">
-                <img src={LOGO_URL} alt="Annachi Logo" className="w-full h-full object-cover" />
+              <div className="w-14 h-14 rounded-full overflow-hidden border-4 border-orange-500 shadow-xl bg-white">
+                <img src={LOGO_URL} alt="Logo" className="w-full h-full object-cover" />
               </div>
-              <span className="text-2xl font-black tracking-tighter text-slate-800 dark:text-white">Annachi</span>
+              <span className="text-2xl font-black tracking-tighter dark:text-white">Annachi</span>
             </Link>
           </div>
 
@@ -170,37 +156,24 @@ const App: React.FC = () => {
             <NavItem to="/settings" icon={Settings} label={t('settings')} active={location.pathname === '/settings'} onClick={closeMenu} />
           </nav>
 
-          <div className="p-4 border-t dark:border-slate-800 space-y-3">
-            <button 
-              onClick={() => { setLang(lang === 'en' ? 'ta' : 'en'); closeMenu(); }}
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-orange-50 dark:hover:bg-slate-700 transition-all border border-transparent hover:border-orange-100"
-            >
-              <div className="flex items-center space-x-2">
-                <Languages size={18} className="text-orange-500" />
-                <span className="text-sm font-bold">{lang === 'en' ? 'தமிழ்' : 'English'}</span>
-              </div>
-            </button>
-
-            <div className="flex items-center space-x-3 px-3 py-2">
-               <div className="w-8 h-8 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden ring-2 ring-white dark:ring-slate-800">
-                 {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" alt="" referrerPolicy="no-referrer" /> : user.name.charAt(0)}
+          <div className="p-4 border-t dark:border-slate-800">
+            <div className="flex items-center space-x-3 px-3 py-2 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
+               <div className="w-8 h-8 bg-orange-100 rounded-full overflow-hidden shrink-0">
+                 {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" alt="" referrerPolicy="no-referrer" /> : <div className="w-full h-full flex items-center justify-center font-bold text-xs text-orange-600">{user.name.charAt(0)}</div>}
                </div>
                <div className="flex-1 min-w-0">
                  <p className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">{user.name}</p>
+                 <div className="flex items-center space-x-1">
+                   <Cloud size={10} className={user.accessToken ? 'text-emerald-500' : 'text-slate-300'} />
+                   <span className="text-[9px] uppercase font-black text-slate-400">{user.accessToken ? 'Sync On' : 'Local Only'}</span>
+                 </div>
                </div>
             </div>
           </div>
         </aside>
 
-        {/* Overlay for Mobile Sidebar */}
-        {isMobileMenuOpen && (
-          <div 
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 md:hidden" 
-            onClick={closeMenu}
-          />
-        )}
+        {isMobileMenuOpen && <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 md:hidden" onClick={closeMenu} />}
 
-        {/* Main Content */}
         <main className="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8">
           <div className="max-w-6xl mx-auto">
             <Routes>
@@ -217,7 +190,6 @@ const App: React.FC = () => {
           </div>
         </main>
 
-        {/* Mobile Bottom Navigation Bar */}
         <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t dark:border-slate-800 px-2 pb-safe-area-inset-bottom">
           <div className="flex justify-around items-center h-16 max-w-lg mx-auto">
             <MobileTab to="/" icon={Home} label={t('dashboard')} active={location.pathname === '/'} />

@@ -73,7 +73,6 @@ const ReportsPage: React.FC = () => {
     return acc;
   }, {} as Record<string, { qty: number, revenue: number }>);
 
-  // Fix: Explicitly type Object.entries to resolve 'unknown' property errors (lines 77, 154, 158)
   const topProducts = (Object.entries(productStats) as [string, { qty: number; revenue: number }][])
     .sort((a, b) => b[1].revenue - a[1].revenue)
     .slice(0, 5);
@@ -82,8 +81,8 @@ const ReportsPage: React.FC = () => {
     <div className="space-y-8 animate-in fade-in duration-500 pb-20">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Sales Analytics</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">Detailed performance insights for your business periods.</p>
+          <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight">Sales Analytics</h1>
+          <p className="text-slate-600 dark:text-slate-400 mt-2 font-semibold text-lg">Detailed performance insights for your business periods.</p>
         </div>
 
         <div className="bg-white dark:bg-slate-900 p-1.5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex overflow-x-auto no-scrollbar">
@@ -131,7 +130,6 @@ const ReportsPage: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Top Products Table */}
         <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
           <div className="p-8 border-b dark:border-slate-800 flex items-center justify-between">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
@@ -152,12 +150,10 @@ const ReportsPage: React.FC = () => {
                       </div>
                       <div>
                         <p className="font-bold text-slate-800 dark:text-white">{name}</p>
-                        {/* Fix: stats is now correctly typed and accessible (line 154) */}
-                        <p className="text-xs font-bold text-slate-400">{stats.qty} units sold</p>
+                        <p className="text-xs font-bold text-slate-500 dark:text-slate-400">{stats.qty} units sold</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      {/* Fix: stats is now correctly typed and accessible (line 158) */}
                       <p className="font-black text-slate-900 dark:text-white">{formatINR(stats.revenue)}</p>
                     </div>
                   </div>
@@ -167,7 +163,6 @@ const ReportsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Recent Transactions List */}
         <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
           <div className="p-8 border-b dark:border-slate-800 flex items-center justify-between">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
@@ -182,14 +177,14 @@ const ReportsPage: React.FC = () => {
                filteredLogs.slice().reverse().map(log => {
                  const p = products.find(prod => prod.id === log.productId);
                  return (
-                   <div key={log.id} className="flex items-center justify-between p-4 border dark:border-slate-800 rounded-2xl">
+                   <div key={log.id} className="flex items-center justify-between p-4 border dark:border-slate-800 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                      <div>
-                       <p className="text-xs font-black text-slate-400 uppercase tracking-widest">{new Date(log.date).toLocaleDateString()}</p>
+                       <p className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">{new Date(log.date).toLocaleDateString()}</p>
                        <p className="font-bold text-slate-800 dark:text-white">{p?.name}</p>
                      </div>
                      <div className="text-right">
                        <p className="text-sm font-black text-emerald-600">{formatINR(log.quantity * (p?.unitPrice || 0))}</p>
-                       <p className="text-[10px] font-bold text-slate-400 uppercase">{log.paymentStatus}</p>
+                       <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">{log.paymentStatus}</p>
                      </div>
                    </div>
                  );

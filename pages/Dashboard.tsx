@@ -35,7 +35,7 @@ const StatCard = ({ title, value, icon: Icon, color, subtitle, currency, extra }
     </div>
     <div className="flex-1 min-w-0">
       <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider truncate">{title}</p>
-      <h3 className="text-2xl font-bold text-slate-800 dark:text-white mt-1 truncate">
+      <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1 truncate">
         {currency ? formatINR(value) : value}
       </h3>
       {(subtitle || extra) && (
@@ -121,12 +121,16 @@ const Dashboard: React.FC = () => {
     <div className="space-y-8 animate-in fade-in duration-500 pb-20">
       <header className="flex justify-between items-end">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{t('businessIntel')}</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium">{t('realTimeAnalysis')}</p>
+          <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+            {t('businessIntel')}
+          </h1>
+          <p className="text-slate-600 dark:text-slate-400 mt-2 font-semibold text-lg">
+            {t('realTimeAnalysis')}
+          </p>
         </div>
         <button 
           onClick={refreshData}
-          className="p-2 text-slate-400 hover:text-orange-600 transition-colors"
+          className="p-3 bg-white dark:bg-slate-800 text-slate-400 hover:text-orange-600 rounded-2xl shadow-sm border dark:border-slate-700 transition-all active:scale-90"
           title="Refresh Dashboard Data"
         >
           <RefreshCw size={20} />
@@ -161,36 +165,36 @@ const Dashboard: React.FC = () => {
             <div className="h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#475569" opacity={0.3} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={darkMode ? "#334155" : "#e2e8f0"} />
                   <XAxis 
                     dataKey="name" 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{fill: darkMode ? '#ffffff' : '#475569', fontSize: 12, fontWeight: 'bold'}} 
+                    tick={{fill: darkMode ? '#94a3b8' : '#475569', fontSize: 12, fontWeight: 'bold'}} 
                   />
                   <YAxis 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{fill: darkMode ? '#ffffff' : '#475569', fontSize: 12, fontWeight: 'bold'}} 
+                    tick={{fill: darkMode ? '#94a3b8' : '#475569', fontSize: 12, fontWeight: 'bold'}} 
                   />
                   <Tooltip 
                     contentStyle={{ 
                       borderRadius: '16px', 
                       border: 'none', 
                       boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)', 
-                      backgroundColor: '#1e293b', 
+                      backgroundColor: darkMode ? '#1e293b' : '#ffffff', 
                     }}
-                    itemStyle={{ color: '#ffffff', fontWeight: 'bold' }}
-                    labelStyle={{ color: '#ffffff', fontWeight: 'black', marginBottom: '4px' }}
-                    cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                    itemStyle={{ color: darkMode ? '#ffffff' : '#0f172a', fontWeight: 'bold' }}
+                    labelStyle={{ color: darkMode ? '#ffffff' : '#0f172a', fontWeight: 'black', marginBottom: '4px' }}
+                    cursor={{ fill: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' }}
                   />
                   <Bar dataKey="value" radius={[8, 8, 0, 0]} barSize={60}>
                     <LabelList 
                       dataKey="value" 
-                      position="center" 
-                      fill="#ffffff" 
+                      position="top" 
+                      fill={darkMode ? "#ffffff" : "#0f172a"} 
                       fontWeight="black" 
-                      fontSize={16} 
+                      fontSize={14} 
                     />
                     {chartData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={index === 0 ? '#f97316' : index === 1 ? '#10b981' : '#6366f1'} />
@@ -219,13 +223,13 @@ const Dashboard: React.FC = () => {
                   const c = data.customers.find(cust => cust.id === log.customerId);
                   return (
                     <div key={log.id} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                      <div className="flex items-center space-x-3">
-                        <div className={`p-2 rounded-lg ${log.type === 'IN' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                      <div className="flex items-center space-x-4">
+                        <div className={`p-2 rounded-lg ${log.type === 'IN' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20'}`}>
                           {log.type === 'IN' ? <ArrowDownLeft size={16} /> : <ArrowUpRight size={16} />}
                         </div>
                         <div>
                           <p className="text-sm font-bold text-slate-800 dark:text-white">{p?.name || 'Unknown'}</p>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase">
+                          <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tight">
                             {log.type === 'IN' ? t('stockIn') : t('stockOut')} • {c?.name || 'Supplier'}
                           </p>
                         </div>
@@ -234,7 +238,7 @@ const Dashboard: React.FC = () => {
                         <p className={`text-sm font-black ${log.type === 'IN' ? 'text-blue-600' : 'text-emerald-600'}`}>
                           {log.type === 'IN' ? '+' : '-'}{log.quantity}
                         </p>
-                        <p className="text-[10px] text-slate-400">{new Date(log.date).toLocaleDateString()}</p>
+                        <p className="text-[10px] text-slate-400 font-medium">{new Date(log.date).toLocaleDateString()}</p>
                       </div>
                     </div>
                   );
@@ -262,11 +266,11 @@ const Dashboard: React.FC = () => {
                   <div key={item.id} className="p-4 flex items-center justify-between">
                     <div>
                       <p className="text-sm font-bold text-slate-800 dark:text-white">{item.name}</p>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase">{t('minStock')}: {item.minStock}</p>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase">{t('minStock')}: {item.minStock}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-black text-red-600">{item.balance}</p>
-                      <p className="text-[10px] text-slate-400 uppercase">{t('totalUnits')}</p>
+                      <p className="text-[10px] text-slate-400 uppercase font-medium">{t('totalUnits')}</p>
                     </div>
                   </div>
                 ))
@@ -295,7 +299,7 @@ const Dashboard: React.FC = () => {
                     <div key={log.id} className="p-4 flex items-center justify-between">
                       <div>
                         <p className="text-sm font-bold text-slate-800 dark:text-white">{cust?.name || 'Walk-in'}</p>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase">{prod?.name}</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase">{prod?.name}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-black text-slate-900 dark:text-white">{formatINR(val)}</p>
