@@ -60,7 +60,7 @@ const NavItem = ({ to, icon: Icon, label, active }: { to: string, icon: any, lab
 );
 
 const App: React.FC = () => {
-  const [user, setUser] = useState<{ name: string; email: string } | null>(() => {
+  const [user, setUser] = useState<{ name: string; email: string; avatar?: string } | null>(() => {
     const saved = localStorage.getItem('ss_user');
     return saved ? JSON.parse(saved) : null;
   });
@@ -84,7 +84,7 @@ const App: React.FC = () => {
 
   const t = (key: keyof typeof translations.en) => translations[lang][key] || key;
 
-  const handleLogin = (userData: { name: string; email: string }) => {
+  const handleLogin = (userData: { name: string; email: string; avatar?: string }) => {
     setUser(userData);
     localStorage.setItem('ss_user', JSON.stringify(userData));
   };
@@ -153,7 +153,9 @@ const App: React.FC = () => {
             </button>
 
             <div className="flex items-center space-x-3 px-3 py-2">
-               <div className="w-8 h-8 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center font-bold text-xs shrink-0">{user.name.charAt(0)}</div>
+               <div className="w-8 h-8 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden ring-2 ring-white dark:ring-slate-800">
+                 {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" alt="" referrerPolicy="no-referrer" /> : user.name.charAt(0)}
+               </div>
                <div className="flex-1 min-w-0">
                  <p className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">{user.name}</p>
                </div>
@@ -163,7 +165,7 @@ const App: React.FC = () => {
               onClick={() => setDarkMode(!darkMode)}
               className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
             >
-              <span className="text-sm font-medium">{darkMode ? t('logout').replace('Sign Out', 'Dark') : 'Light'}</span>
+              <span className="text-sm font-medium">{darkMode ? 'Dark' : 'Light'} Mode</span>
               {darkMode ? <Moon size={16} /> : <Sun size={16} />}
             </button>
           </div>
