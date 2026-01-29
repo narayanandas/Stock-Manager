@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Mail, Cloud, Loader2, AlertCircle } from 'lucide-react';
+import { Mail, Cloud, Loader2, AlertCircle, HelpCircle, ExternalLink, ChevronRight } from 'lucide-react';
 
 const GOOGLE_CLIENT_ID = "127960470889-0hee1q04h5cgpuorh5rp8q5frk2gji7m.apps.googleusercontent.com";
 
@@ -8,7 +8,6 @@ interface LoginPageProps {
   onLogin: (user: { name: string; email: string; avatar?: string; accessToken?: string }) => void;
 }
 
-// Local Logo Path
 const LOGO_URL = "./logo.png";
 
 const parseJwt = (token: string) => {
@@ -24,65 +23,69 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const [step, setStep] = useState<'form' | 'loading' | 'success'>('form');
   const [email, setEmail] = useState('');
   const [isGoogleReady, setIsGoogleReady] = useState(false);
+  const [showTroubleshoot, setShowTroubleshoot] = useState(false);
   const buttonRendered = useRef(false);
 
   useEffect(() => {
     let pollCount = 0;
-    const maxPolls = 20; // 10 seconds total
+    const maxPolls = 30; 
 
     const initGoogle = () => {
       const google = (window as any).google;
       if (google?.accounts?.id && !buttonRendered.current) {
         setIsGoogleReady(true);
-        google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: (response: any) => {
-            const userData = parseJwt(response.credential);
-            
-            // Get token for Drive access
-            const tokenClient = google.accounts.oauth2.initTokenClient({
-              client_id: GOOGLE_CLIENT_ID,
-              scope: 'https://www.googleapis.com/auth/drive.file',
-              callback: (tokenResponse: any) => {
-                if (tokenResponse.error !== undefined) throw (tokenResponse);
-                
-                setStep('loading');
-                setTimeout(() => {
-                  setStep('success');
+        try {
+          google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: (response: any) => {
+              const userData = parseJwt(response.credential);
+              
+              const tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: GOOGLE_CLIENT_ID,
+                scope: 'https://www.googleapis.com/auth/drive.file',
+                callback: (tokenResponse: any) => {
+                  if (tokenResponse.error !== undefined) throw (tokenResponse);
+                  
+                  setStep('loading');
                   setTimeout(() => {
-                    onLogin({ 
-                      name: userData?.name || "User", 
-                      email: userData?.email || "user@gmail.com",
-                      avatar: userData?.picture,
-                      accessToken: tokenResponse.access_token
-                    });
-                  }, 800);
-                }, 1000);
-              },
-            });
-            tokenClient.requestAccessToken();
-          }
-        });
-
-        const btn = document.getElementById("googleBtn");
-        if (btn) {
-          google.accounts.id.renderButton(btn, { 
-            theme: "filled_blue", 
-            size: "large", 
-            width: 320, 
-            shape: "pill",
-            text: "signin_with" 
+                    setStep('success');
+                    setTimeout(() => {
+                      onLogin({ 
+                        name: userData?.name || "User", 
+                        email: userData?.email || "user@gmail.com",
+                        avatar: userData?.picture,
+                        accessToken: tokenResponse.access_token
+                      });
+                    }, 800);
+                  }, 1000);
+                },
+              });
+              tokenClient.requestAccessToken();
+            },
+            auto_select: false,
+            cancel_on_tap_outside: true,
           });
-          buttonRendered.current = true;
+
+          const btn = document.getElementById("googleBtn");
+          if (btn) {
+            google.accounts.id.renderButton(btn, { 
+              theme: "filled_blue", 
+              size: "large", 
+              width: 320, 
+              shape: "pill",
+              text: "signin_with" 
+            });
+            buttonRendered.current = true;
+          }
+        } catch (err) {
+          console.error("Google Init Error:", err);
         }
         return true;
       }
       return false;
     };
 
-    // Try immediately
     if (!initGoogle()) {
-      // If not ready, poll
       const interval = setInterval(() => {
         pollCount++;
         if (initGoogle() || pollCount >= maxPolls) {
@@ -107,10 +110,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center items-center p-4">
       <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-[3rem] shadow-2xl overflow-hidden border dark:border-slate-800">
-        <div className="bg-orange-600 p-10 text-white text-center">
+        <div className="bg-orange-600 p-10 text-white text-center relative">
           <div className="w-28 h-28 bg-white rounded-full mx-auto flex items-center justify-center mb-6 shadow-2xl border-4 border-orange-400 p-1 overflow-hidden">
             <img src={LOGO_URL} alt="Logo" className="w-full h-full object-cover" onError={(e) => {
-               // Fallback if logo.png is missing
                (e.target as HTMLImageElement).src = "https://ui-avatars.com/api/?name=Annachi&background=ea580c&color=fff";
             }} />
           </div>
@@ -127,7 +129,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               </div>
 
               <div className="flex flex-col items-center space-y-6">
-                {/* Google Button Container with fixed height to prevent flicker */}
                 <div className="min-h-[44px] w-full flex flex-col items-center justify-center">
                   {!isGoogleReady && (
                     <div className="flex items-center space-x-2 text-slate-400 text-xs animate-pulse">
@@ -137,6 +138,47 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                   )}
                   <div id="googleBtn" className={`w-full flex justify-center transition-opacity duration-500 ${isGoogleReady ? 'opacity-100' : 'opacity-0'}`}></div>
                 </div>
+
+                {isGoogleReady && (
+                  <button 
+                    onClick={() => setShowTroubleshoot(!showTroubleshoot)}
+                    className="flex items-center space-x-1 text-[10px] font-bold text-slate-400 hover:text-orange-600 transition-colors uppercase tracking-wider"
+                  >
+                    <HelpCircle size={12} />
+                    <span>Seeing "Access Blocked"? Click here</span>
+                  </button>
+                )}
+
+                {showTroubleshoot && (
+                  <div className="w-full p-4 bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-800 rounded-2xl animate-in slide-in-from-top-2">
+                    <h4 className="text-xs font-black text-orange-700 dark:text-orange-400 uppercase mb-2 flex items-center">
+                      <AlertCircle size={14} className="mr-1" /> Fix Access Blocked
+                    </h4>
+                    <ol className="text-[11px] text-orange-800 dark:text-orange-300 space-y-2 font-medium">
+                      <li className="flex items-start space-x-2">
+                        <span className="bg-orange-200 dark:bg-orange-800 w-4 h-4 rounded-full flex items-center justify-center shrink-0 text-[10px]">1</span>
+                        <span>Open <b>Google Cloud Console</b></span>
+                      </li>
+                      <li className="flex items-start space-x-2">
+                        <span className="bg-orange-200 dark:bg-orange-800 w-4 h-4 rounded-full flex items-center justify-center shrink-0 text-[10px]">2</span>
+                        <span>Add <code>{window.location.origin}</code> to <b>Authorized JavaScript origins</b></span>
+                      </li>
+                      <li className="flex items-start space-x-2">
+                        <span className="bg-orange-200 dark:bg-orange-800 w-4 h-4 rounded-full flex items-center justify-center shrink-0 text-[10px]">3</span>
+                        <span>Save changes and wait 5 minutes.</span>
+                      </li>
+                    </ol>
+                    <a 
+                      href="https://console.cloud.google.com/apis/credentials" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-flex items-center space-x-1 text-[10px] font-black text-orange-600 dark:text-orange-400 hover:underline"
+                    >
+                      <span>GO TO GOOGLE CONSOLE</span>
+                      <ExternalLink size={10} />
+                    </a>
+                  </div>
+                )}
 
                 <div className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider">
                   <Cloud size={14} />
@@ -165,11 +207,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                      Email Login (Local Only)
                    </button>
                 </form>
-                
-                <div className="flex items-center space-x-1 text-[10px] text-slate-400 font-bold uppercase">
-                  <AlertCircle size={10} />
-                  <span>No account needed for local mode</span>
-                </div>
               </div>
             </div>
           ) : (
