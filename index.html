@@ -13,7 +13,7 @@
         body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease; }
         .tamil-font { font-family: 'Arima', cursive; }
         
-        /* High Contrast Inputs for Accessibility */
+        /* High Contrast Inputs */
         input:not([type="checkbox"]):not([type="radio"]), 
         select, 
         textarea {
@@ -22,7 +22,6 @@
             opacity: 1 !important;
         }
 
-        /* Dark mode overrides */
         .dark body { background-color: #020617; }
         
         .dark input:not([type="checkbox"]):not([type="radio"]), 
@@ -33,41 +32,47 @@
             border-color: #334155 !important;
         }
 
-        .dark input:focus, .dark select:focus, .dark textarea:focus {
-            outline: 2px solid #f97316 !important;
-            border-color: transparent !important;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: 2px solid #3b82f6 !important;
-        }
-
-        ::placeholder {
-            color: #94a3b8 !important;
-            opacity: 0.6;
-        }
-
-        /* Support for Browser Autofill Visibility */
-        input:-webkit-autofill {
-            -webkit-box-shadow: 0 0 0px 1000px white inset !important;
-            -webkit-text-fill-color: #0f172a !important;
-        }
-
-        .dark input:-webkit-autofill {
-            -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important;
-            -webkit-text-fill-color: #f1f5f9 !important;
-        }
-
         @media print {
-            .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            body { background: white !important; color: black !important; }
-            aside, main > div:not(.print-area), .fixed, button { display: none !important; }
-            main { padding: 0 !important; margin: 0 !important; }
-            .print-area { display: block !important; width: 100% !important; }
+            /* Reset everything for print */
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            body { background: white !important; color: black !important; padding: 0 !important; margin: 0 !important; }
+            
+            /* Hide UI Elements */
+            aside, nav, button, .no-print, .mobile-tabs, header:not(.print-header) { 
+                display: none !important; 
+            }
+
+            /* Main container must not be flex/relative to avoid cutting off */
+            main { 
+                display: block !important; 
+                overflow: visible !important; 
+                position: static !important; 
+                padding: 0 !important; 
+                margin: 0 !important; 
+                width: 100% !important;
+            }
+
+            /* Hide everything inside main except our specific print areas */
+            main > div > div:not(.print-area) {
+                display: none !important;
+            }
+
+            .print-area {
+                display: block !important;
+                visibility: visible !important;
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                z-index: 9999 !important;
+                background: white !important;
+            }
+
             @page { margin: 1cm; }
         }
-        .print-only { display: none; }
+        
+        /* Utility to hide print content on screen */
+        .print-area { display: none; }
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }

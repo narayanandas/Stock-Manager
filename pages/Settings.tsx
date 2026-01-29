@@ -128,8 +128,8 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onLogout }) => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in slide-in-from-bottom-4 duration-500 pb-24">
-      {/* Printable Audit View (Hidden on screen) */}
-      <div className="hidden print:block print-area p-10 bg-white text-black">
+      {/* Printable Audit View (Hidden on screen via CSS) */}
+      <div className="print-area p-10 bg-white text-black min-h-screen">
          <div className="border-b-4 border-orange-600 pb-6 mb-8 flex justify-between items-end">
             <div>
               <h1 className="text-4xl font-black uppercase tracking-tighter">Annachi Business Audit</h1>
@@ -143,25 +143,25 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onLogout }) => {
 
          <div className="grid grid-cols-2 gap-8 mb-10">
             <div className="p-6 bg-slate-50 rounded-2xl border">
-               <p className="text-xs font-black text-slate-400 uppercase mb-1">Total Revenue</p>
+               <p className="text-xs font-black text-slate-400 uppercase mb-1 tracking-wider">Total Revenue</p>
                <h2 className="text-3xl font-black text-slate-900">{formatINR(auditData.revenue)}</h2>
             </div>
             <div className="p-6 bg-slate-50 rounded-2xl border">
-               <p className="text-xs font-black text-slate-400 uppercase mb-1">Estimated Profit</p>
+               <p className="text-xs font-black text-slate-400 uppercase mb-1 tracking-wider">Estimated Profit</p>
                <h2 className="text-3xl font-black text-emerald-600">{formatINR(auditData.profit)}</h2>
             </div>
             <div className="p-6 bg-slate-50 rounded-2xl border">
-               <p className="text-xs font-black text-slate-400 uppercase mb-1">Inventory Value</p>
+               <p className="text-xs font-black text-slate-400 uppercase mb-1 tracking-wider">Inventory Value</p>
                <h2 className="text-3xl font-black text-indigo-600">{formatINR(auditData.invValue)}</h2>
             </div>
             <div className="p-6 bg-slate-50 rounded-2xl border">
-               <p className="text-xs font-black text-slate-400 uppercase mb-1">Pending Receivables</p>
+               <p className="text-xs font-black text-slate-400 uppercase mb-1 tracking-wider">Pending Receivables</p>
                <h2 className="text-3xl font-black text-orange-600">{formatINR(auditData.receivables)}</h2>
             </div>
          </div>
 
          <div className="space-y-4">
-            <h3 className="text-xl font-bold border-b pb-2">Business Health Metrics</h3>
+            <h3 className="text-xl font-bold border-b pb-2 uppercase tracking-tighter">Business Performance Summary</h3>
             <div className="grid grid-cols-3 gap-4 text-center">
                <div className="py-4 border rounded-xl">
                   <p className="text-3xl font-black">{auditData.customerCount}</p>
@@ -178,8 +178,8 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onLogout }) => {
             </div>
          </div>
 
-         <div className="mt-20 pt-10 border-t text-center text-[10px] text-slate-400 font-bold uppercase tracking-[0.3em]">
-            Digital Signature Verified • Annachi Trade Intelligence
+         <div className="mt-20 pt-10 border-t text-center text-[10px] text-slate-400 font-black uppercase tracking-[0.5em]">
+            Digital Signature Verified • System Generated Document
          </div>
       </div>
 
